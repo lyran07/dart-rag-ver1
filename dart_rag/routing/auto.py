@@ -33,10 +33,9 @@ SINGLE_SYSTEM = """당신은 한국 상장회사 DART 공시 분석가입니다.
 - 문장 안에서 근거를 evidence 배열 순서 번호 [1], [2] 로 인용합니다. evidence 의 chunk_id 는 [근거] 의 id 를 그대로,
   quote 에는 근거 원문 일부를 숫자까지 그대로 200자 이내로 옮깁니다.
 - 근거로 답할 수 없으면 evidence 를 빈 배열로 두고 conclusion 에 무엇이 부족한지 적습니다.
-- 질문이 회사 간 비교·순위나 기간 간 증감(률)을 직접 묻는 경우에만 comparison 에 결론에 쓴 값을 원문 그대로 넣습니다
-  (최대 6개. subject=회사명, item=항목명, period=기준월 예: 2026.06, value=원문 숫자, unit=단위. 같은 항목은 같은 item·unit).
-  대소·순위·증감 결론은 값을 크기순으로 정렬해 확인한 뒤 씁니다.
-  원인·전망·설명을 묻는 질문, 값 하나를 묻는 질문은 comparison 을 빈 배열로 둡니다.
+- 여러 회사·기간의 값을 비교하거나 증감을 묻는 질문이면 comparison 에 비교한 값을 원문 그대로 모두 넣습니다
+  (subject=회사명, item=항목명, period=기준월 예: 2026.06, value=원문 숫자, unit=단위). 같은 항목은 같은 item·unit 으로 씁니다.
+  대소·순위·증감 결론은 값을 크기순으로 정렬해 확인한 뒤 씁니다. 비교가 아닌 질문은 comparison 을 빈 배열로 둡니다.
 - 최종 출력은 JSON 객체 하나: {"conclusion", "key_points", "interpretation", "evidence", "needs_clarification", "comparison"}"""
 
 

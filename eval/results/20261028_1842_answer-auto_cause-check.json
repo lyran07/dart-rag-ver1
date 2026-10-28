@@ -1,0 +1,204 @@
+{
+ "answer": {
+  "auto": [
+   {
+    "q": "삼성전자 2023년 실적이 왜 나빠졌어?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 4,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.001559,
+    "sec": 19.16,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "router_skipped": false,
+    "errors": {},
+    "comparison_retried": false,
+    "answer": "공시상 삼성전자 2023년 실적 악화의 가장 큰 요인은 DS 부문의 부진입니다. 전사 영업이익이 전년보다 84.9% 감소했고, DS 부문은 2022년 흑자에서 2023년 큰 폭의 영업손실로 전환했습니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제55기(2023년) 전사 영업이익은 6,566,976백만원으로, 제54기(2022년) 43,376,630백만원보다 36,809,654백만원 감소했습니다.[1]\n- 연결 기준 DS 부문 매출은 제55기 66,594,471백만원으로 제54기보다 31,860,799백만원 감소했고, 영업이익은 제55기 △14,879,458백만원으로 제54기 23,815,810백만원에서 감소했습니다.[2]\n- 연결 기준 DX 부문 영업이익은 전년 대비 증가했지만, 매출은 감소했습니다. SDC 영업이익도 전년보다 감소했고 Harman 영업이익은 증가했습니다.[2]\n- 연결 기준 전사 매출은 제55기 258,935,494백만원으로 제54기보다 43,295,866백만원 감소했습니다.[2]\n\n**해석**\n- 부문별 수치상 DS 부문의 매출 감소와 영업손실 전환이 전사 영업이익 급감의 핵심 요인으로 해석됩니다.\n- 제공된 공시 근거에는 DS 부문 실적 악화의 구체적 시장·가격·수요 원인이 제시되지 않아 그 원인까지 단정할 수는 없습니다.\n\n**계산 확인 (코드)**\n- 전사 영업이익 (백만원): 2022 43,376,630 → 2023 6,566,976  (2023 -84.9%)\n- DS 부문 영업이익 (백만원): 2022 23,815,810 → 2023 △14,879,458  (2023 -162.5%)\n- 전사 매출 (백만원): 2022 302,231,360 → 2023 258,935,494  (2023 -14.3%)"
+   },
+   {
+    "q": "현대차 2026년 반기 환율 변동이 실적에 미치는 영향은?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": "단일 답변이 근거를 인용하지 못함",
+    "rounds": 4,
+    "usd": 0.001883,
+    "sec": 20.07,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "router_skipped": false,
+    "errors": {},
+    "comparison_retried": false,
+    "answer": "현대자동차 2026년 반기 연결 기준, 환율이 5% 변동할 경우 법인세비용차감전순이익은 USD·EUR 환율 상승 시 증가하고 JPY 상승 시 감소하는 민감도가 공시됐습니다. 이는 반기 실적 자체의 실제 환율 영향액이 아니라 당반기말 환율 민감도이며, 환위험을 파생상품 등으로 관리하고 있습니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 당반기말 연결 기준 환율 5% 상승 시 법인세비용차감전순이익 영향은 USD 95,462백만원 증가, EUR 63,042백만원 증가, JPY 2,696백만원 감소로 공시됐습니다.[1]\n- 연결실체는 환율변동에 따른 외화자산·부채의 공정가치 변동위험과 예상수출거래의 미래현금흐름 변동위험을 회피하기 위해 통화선도·통화옵션·통화스왑 등을 이용합니다.[2]\n- 반기 중 현금흐름 위험회피회계 적용 파생상품의 유효한 평가이익 137,473백만원과 평가손실 108,336백만원은 기타포괄손익누계액으로 처리됐습니다.[2]\n- 반기 중 파생상품 평가손익 중 비효과 부분 및 비지정 파생상품의 세전 평가이익은 965,051백만원, 평가손실은 140,234백만원으로 공시됐습니다.[2]\n\n**해석**\n- 공시된 민감도만 보면 USD·EUR 환율 상승은 세전이익에 유리하고 JPY 환율 상승은 불리한 방향입니다. 다만 이 수치는 반기말 포지션을 바탕으로 한 민감도이므로, 실제 반기 실적에 반영된 환율 효과와 동일한 값으로 볼 수 없습니다.[1]\n- 파생상품 평가손익은 당기손익과 기타포괄손익에 나뉘어 반영될 수 있어, 평가손익만으로 환율이 영업실적에 미친 순효과를 판단하기는 어렵습니다.[2]"
+   },
+   {
+    "q": "SK하이닉스 HBM 관련 내용 알려줘",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": false,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00084,
+    "sec": 7.67,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "router_skipped": false,
+    "errors": {},
+    "comparison_retried": false,
+    "answer": "SK하이닉스는 HBM을 AI·딥러닝 워크로드를 처리하는 고성능 메모리로 설명하며, 대역폭과 적층 단수 등 성능·품질을 높이고 ASIC 개발 협력을 강화해 HBM 시장을 선도하겠다는 방향을 밝혔습니다.[1] 보고서는 AI 서버·데이터센터 수요 확대에 따라 HBM 등 고부가 메모리 수요가 증가할 것으로 전망합니다.[2]\n\n**주요 내용 (공시 확인 사항)**\n- HBM은 AI·딥러닝 분야의 워크로드 증가에 따라 워크스테이션과 고성능 컴퓨팅 시스템 가속화를 위해 탑재된다고 설명합니다.[1]\n- 회사는 HBM 제품의 적기 출시(Time to Market), 대역폭 및 Density/Core Die 적층 단수 상향, 성능·품질 기반의 최적 ASIC 개발 협력 강화를 추진한다고 밝혔습니다.[1]\n- 보고서는 2026년 AI 서버·데이터센터 중심의 고성능 메모리 수요 확대와 HBM·DDR5 등 고부가 제품 수요 증가를 전망합니다.[2]\n- 보고서는 DRAM 시장이 2025년 $1,469억(+60.0%)을 기록했고, 2026년에도 성장세를 이어갈 것으로 전망합니다.[3]\n\n**해석**\n- 회사의 HBM 전략은 제품 성능·출시 시점 경쟁력과 고객·ASIC 협력을 함께 강화하는 방향으로 해석할 수 있습니다.[1]\n- 보고서의 시장 전망은 AI 인프라 확대가 HBM 수요에 우호적인 배경임을 시사하지만, HBM만의 매출이나 시장점유율 수치는 제시하지 않습니다.[2]"
+   },
+   {
+    "q": "현대자동차 전기차 전략은 어떻게 돼?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.001171,
+    "sec": 8.18,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "router_skipped": false,
+    "errors": {},
+    "comparison_retried": false,
+    "answer": "공시상 현대자동차는 내연기관 중심 사업구조를 전동화 차량 중심으로 전환하고, 승용차 라인업에 전동화 모델을 확대하는 전략입니다. 전기차 사용 편의·에너지 효율 관련 기술 개발도 병행하고 있습니다.[1][2][3]\n\n**주요 내용 (공시 확인 사항)**\n- 회사는 내연기관 중심 사업구조를 전동화 차량 중심으로 전환 중이며, 하이브리드·플러그인 하이브리드뿐 아니라 전기차와 수소전기차를 지속 출시한다고 밝혔습니다.[1]\n- 코나, 인스터(캐스퍼), 아이오닉 5·6·9, 제네시스 GV60·GV70 전동화 모델 등 대부분 승용차 라인업에서 전동화 파워트레인 모델을 선보이고 있다고 기재했습니다.[1]\n- 2026년 상반기 연구개발실적으로 EV 배터리 SOH·잔존 수명 예측과 주행부하 기반 에너지 예측 및 충전소 경유 길안내 기술을 제시했습니다.[2]\n- 2024년 연구개발실적에는 전기차 냉각수·냉매 모듈 적용을 통한 히트펌프 성능 개선과 난방 주행거리 증대가 기재되어 있습니다.[3]\n\n**해석**\n- 전략은 전동화 차종의 폭을 넓히는 동시에, 배터리 상태·주행 에너지 예측과 열관리 등 사용 경험 및 효율 개선을 지원하는 기술을 개발하는 방향으로 해석할 수 있습니다.[1][2][3]"
+   },
+   {
+    "q": "삼성전자 2026년 반기 기준 진행 중인 소송이나 우발부채 있어?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 5,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000995,
+    "sec": 6.31,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "rules",
+    "router_fallback": false,
+    "router_skipped": true,
+    "errors": {},
+    "comparison_retried": false,
+    "answer": "네. 삼성전자는 2026년 반기 기준 정상적인 영업과정에서 발생한 소송·분쟁 및 규제기관 조사를 다수 진행 중이라고 공시했습니다. 계열회사에 대한 채무보증도 공시돼 있어 우발부채 관련 사항이 있습니다.\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자는 다수의 회사 등과 정상적인 영업과정에서 발생한 소송, 분쟁 및 규제기관 조사를 진행 중이라고 공시했습니다.\n- 소송 등에 따른 자원의 유출금액과 시기는 불확실하며, 경영진은 그 결과가 재무상태에 중요한 영향을 미치지 않을 것으로 판단한다고 밝혔습니다.\n- 당사와 삼성디스플레이㈜ 등은 삼성디스플레이㈜ 등의 분할 전 채무에 관하여 연대 변제 책임이 있다고 공시했습니다.\n- 연결 기준 계열회사 채무보증 합계는 2026년 6월 말 채무보증한도 15,174,958천US$, 채무금액 600,032천US$입니다.\n\n**해석**\n- 공시상 진행 중인 소송·분쟁·조사는 확인되지만, 개별 사건의 상대방·청구액·사건별 진행 상황은 제시된 근거에 나타나지 않습니다.\n- 회사는 소송 등의 결과가 재무상태에 중요한 영향을 미치지 않을 것으로 판단하고 있으나, 자원 유출 금액과 시기는 불확실하다고 밝혔습니다.\n- 채무보증은 계열회사 관련 우발 위험으로 볼 수 있으며, 공시된 채무금액은 연결 기준 기말 잔액입니다."
+   },
+   {
+    "q": "SK하이닉스 원재료 가격은 어떤 요인에 영향을 받아?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000862,
+    "sec": 7.13,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "router_skipped": false,
+    "errors": {},
+    "comparison_retried": false,
+    "answer": "공시상 원재료 가격은 품목에 따라 세계 반도체 업계의 수급 동향, 최종 반도체 제품의 수급, 주요 원자재 거래가격 등에 영향을 받습니다. 특히 PCB는 경기 불확실성에 따른 원소재 가격 변동과 고신뢰성·고속도·고용량 제품 요구에 따른 조달 비용 변동도 언급돼 있습니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 웨이퍼 가격은 세계 반도체 업계의 수급 동향에 영향을 받습니다.[1]\n- Substrate 가격은 세계 반도체 업계의 수급 동향에 영향을 받으며, 반도체의 Type·Density별 맞춤 설계와 패키지의 경박 단소화에 따른 제작 난이도 상승이 설명돼 있습니다.[1]\n- PCB 가격은 최종 반도체 제품의 수급과 주요 원자재 거래가격에 영향을 받습니다. 공시는 경기 불확실성에 따른 원소재 가격 변동성과 신제품의 고신뢰성·고속도·고용량 요구 추세에 따른 조달 비용 변동성도 언급합니다.[2]\n\n**해석**\n- 원재료 가격에 영향을 미치는 요인은 원재료 종류별로 다르며, 수급뿐 아니라 제품 사양·제작 난이도 및 원소재 가격도 관련되는 것으로 볼 수 있습니다."
+   }
+  ]
+ }
+}

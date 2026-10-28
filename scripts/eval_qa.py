@@ -13,6 +13,7 @@
         --rpm 12 (Gemini 라우터 호출을 분당 12회로 제한. 무료 등급 한도가 분당 15회라서)
 
 결과: eval/results/<시각>_<측정>.md (요약표) + .json (문항별 상세)
+답변·검색 평가 전에 서버와 같은 warmup 을 해서 첫 질문에 인덱스 로딩 시간이 섞이지 않게 한다.
 """
 from __future__ import annotations
 
@@ -475,6 +476,11 @@ def main():
     from dart_rag.service import RAGService
     svc = RAGService()
     pacer = Pacer(a.rpm)
+    if a.answer or a.retrieval:
+        # 서버처럼 인덱스·BM25·위키를 미리 올린다 → 첫 질문 시간에 디스크 로딩(콜드 스타트)이 섞이지 않게
+        t0 = time.perf_counter()
+        w = svc.warmup(verbose=False)
+        print(f"[warmup] {time.perf_counter() - t0:.1f}s {w}", flush=True)
     qs = load(a)
     out, detail, parts = [f"# 질의응답 평가 {datetime.now():%Y-%m-%d %H:%M} {a.label}".strip(), "",
                           f"평가셋 {a.file} · {len(qs)}문항", ""], {}, []

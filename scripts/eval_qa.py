@@ -8,6 +8,7 @@
   python scripts/eval_qa.py --answer auto agent rag         모드 비교
   python scripts/eval_qa.py --rescore A.json B.json         저장된 답변을 지금 채점 규칙으로 다시 채점·합산 (0원)
   python scripts/eval_qa.py --answer auto --start 42        42번째 문항부터만 (새로 추가한 문항)
+  python scripts/eval_qa.py --answer auto --q 직원 "2023년 실적"   질문에 이 문구가 들어간 문항만
   옵션: --types fact compare (유형 일부만)  --limit 5  -k 5  --workers 3 (답변 평가 동시 실행)
         --rpm 12 (Gemini 라우터 호출을 분당 12회로 제한. 무료 등급 한도가 분당 15회라서)
 
@@ -201,6 +202,8 @@ def load(a) -> list[dict]:
     qs = yaml.safe_load((ROOT / a.file).read_text("utf-8"))
     if a.start:
         qs = qs[a.start - 1:]
+    if a.q:
+        qs = [it for it in qs if any(k in it["q"] for k in a.q)]
     if a.types:
         qs = [q for q in qs if q["type"] in a.types]
     return qs[: a.limit] if a.limit else qs
@@ -457,6 +460,7 @@ def main():
                     help="검색 채널 조합 (쉼표 구분). 기본: dense 와 dense,bm25 비교")
     ap.add_argument("--answer", nargs="*", choices=["auto", "agent", "rag"])
     ap.add_argument("--rescore", nargs="+", help="저장된 답변 결과(.json, 여러 개 가능)를 지금 채점 규칙으로 다시 채점·합산")
+    ap.add_argument("--q", nargs="+", help="질문에 이 문구가 들어간 문항만 (예: --q 직원 '2023년 실적')")
     ap.add_argument("--start", type=int, help="평가셋의 N번째 문항부터 (예: --start 42 → 새로 추가한 문항만)")
     ap.add_argument("--types", nargs="*", choices=TYPES)
     ap.add_argument("--limit", type=int)

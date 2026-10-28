@@ -6,6 +6,7 @@
   python scripts/eval_qa.py --retrieval                     검색 Recall@k · MRR, 채널 비교 (dense / dense+bm25)
   python scripts/eval_qa.py --answer auto                   답변 정확도 · 근거 · 형식 · 시간 · 비용
   python scripts/eval_qa.py --answer auto agent rag         모드 비교
+  python scripts/eval_qa.py --rescore eval/results/X.json   저장된 답변을 지금 채점 규칙으로 다시 채점 (0원)
   옵션: --types fact compare (유형 일부만)  --limit 5  -k 5  --workers 3 (답변 평가 동시 실행)
         --rpm 12 (Gemini 라우터 호출을 분당 12회로 제한. 무료 등급 한도가 분당 15회라서)
 
@@ -29,7 +30,14 @@ sys.path.insert(0, str(ROOT))
 
 import yaml  # noqa: E402
 
-TYPES = ["fact", "synonym", "concept", "compare", "trend", "cause", "negative"]
+TYPES = ["fact", "synonym", "concept", "compare", "trend", "calc", "relative", "cause", "negative"]
+CORP_NAMES = {"삼성전자": ["삼성전자", "삼성"], "SK하이닉스": ["SK하이닉스", "하이닉스"], "현대자동차": ["현대자동차", "현대차"]}
+MAX_CUE = r"(가장|제일)\s*(크|많|높|앞)|최대|최고|1위"
+MIN_CUE = r"(가장|제일)\s*(작|적|낮)|최소|최저"
+PAIR_MAX = r"더\s*(크|많|높)"
+PAIR_MIN = r"더\s*(작|적|낮)"
+UP = r"증가|늘었|늘어|늘며|늘고|상승|확대|개선|커졌"
+DOWN = r"감소|줄었|줄어|줄며|줄고|하락|축소|악화|작아졌"
 NO_ANSWER_HINTS = ["보유", "없습니다", "없어", "없다", "찾지 못", "확인되지", "확인할 수 없", "제공되지", "존재하지 않",
                    "포함되어 있지 않", "포함돼 있지 않"]
 
@@ -94,13 +102,72 @@ def value_in_answer(value: str, unit: str | None, text: str) -> bool:
     return False
 
 
+def _mentions(sent: str) -> list[tuple[int, int, str]]:
+    """문장 속 회사 언급 (시작, 끝, 회사). 'X보다' 처럼 비교 기준으로 쓰인 언급은 뺀다."""
+    found = []
+    for corp, names in CORP_NAMES.items():
+        for n in names:
+            for m in re.finditer(re.escape(n), sent):
+                found.append((m.start(), m.end(), corp))
+    found = [f for f in found if not any(g[0] <= f[0] and f[1] <= g[1] and g != f for g in found)]  # 긴 이름 우선
+    return sorted(f for f in found if not re.match(r"\s*(의\s*\S+\s*)?보다", sent[f[1]:f[1] + 12]))
+
+
+def claimed(text: str, cue: str) -> list[str]:
+    """'X가 가장 크다' / '가장 큰 곳은 X' 형태에서 X 를 뽑는다."""
+    out = []
+    for sent in re.split(r"(?<=[.!?])\s+|\n", text):
+        ms = _mentions(sent)
+        for c in re.finditer(cue, sent):
+            after = [m for m in ms if 0 <= m[0] - c.end() <= 25 and re.search(r"(은|는)\s*", sent[c.end():m[0]])]
+            before = [m for m in ms if m[1] <= c.start()]
+            if after:
+                out.append(after[0][2])
+            elif before:
+                out.append(before[-1][2])
+    return out
+
+
+def conclusion_checks(item: dict, text: str) -> dict:
+    res = {}
+    many = len(item.get("corps") or []) >= 3
+    for key, cue, pair in (("expect_max", MAX_CUE, PAIR_MAX), ("expect_min", MIN_CUE, PAIR_MIN)):
+        if item.get(key):
+            claims = claimed(text, cue) or ([] if many else claimed(text, pair))
+            res[key] = bool(claims) and all(c == item[key] for c in claims)
+    if item.get("expect_direction"):
+        pos, ok = 0, True
+        for d in item["expect_direction"]:
+            m = re.compile(UP if d == "증가" else DOWN).search(text, pos)
+            if not m:
+                ok = False
+                break
+            pos = m.end()
+        res["expect_direction"] = ok
+    if item.get("expect_calc"):
+        c = item["expect_calc"]
+        pat = r"(\d+(?:\.\d+)?)\s*%" if c["unit"] == "%" else r"(\d+(?:\.\d+)?)\s*배"
+        res["expect_calc"] = any(abs(float(x) - c["value"]) <= c["tol"] for x in re.findall(pat, text))
+    return res
+
+
 def answer_score(item: dict, text: str) -> dict:
     groups = item.get("answer") or []
     kws = item.get("keywords") or []
     v_ok = [any(value_in_answer(v, item.get("unit"), text) for v in alts) for alts in groups]
     k_ok = [any(k.lower() in text.lower() for k in alts) for alts in kws]
-    checks = v_ok + k_ok
-    return {"values": v_ok, "keywords": k_ok, "correct": bool(checks) and all(checks)}
+    concl = conclusion_checks(item, text)
+    checks = v_ok + k_ok + list(concl.values())
+    return {"values": v_ok, "keywords": k_ok, "conclusion": concl,
+            "conclusion_ok": all(concl.values()) if concl else None,
+            "correct": bool(checks) and all(checks)}
+
+
+def score(item: dict, text: str, status: str) -> dict:
+    if item.get("no_answer"):
+        return {"correct": status in ("no_evidence", "needs_clarification") or any(h in text for h in NO_ANSWER_HINTS),
+                "conclusion_ok": None}
+    return answer_score(item, text)
 
 
 def section_hit(item: dict, sources: list[dict]) -> bool | None:
@@ -259,14 +326,11 @@ def _ask(svc, it, mode, pacer: Pacer | None = None):
     if a is None:
         return {"q": it["q"], "type": it["type"], "mode": mode, "error": err, "sec": round(sec, 2), "correct": False}
     text = a.answer
-    if it.get("no_answer"):
-        correct = a.status in ("no_evidence", "needs_clarification") or any(h in text for h in NO_ANSWER_HINTS)
-        sc = {"correct": correct}
-    else:
-        sc = answer_score(it, text)
+    sc = score(it, text, a.status)
     chk = a.plan.get("evidence_check") or {}
     usage = a.plan.get("usage") or {}
     return {"q": it["q"], "type": it["type"], "mode": mode, "status": a.status, "correct": sc["correct"], "score": sc,
+            "conclusion_ok": sc.get("conclusion_ok"),
             "section_hit": None if it.get("no_answer") else section_hit(it, a.sources),
             "n_evidence": chk.get("n_evidence", len(a.sources)), "n_unverified": chk.get("n_unverified", 0),
             "format_ok": bool(text.strip()) and (a.status != "answered" or bool(a.sources)),
@@ -274,7 +338,7 @@ def _ask(svc, it, mode, pacer: Pacer | None = None):
             "rounds": a.plan.get("rounds"), "usd": usage.get("usd"), "sec": round(sec, 2), "llm": a.llm,
             "router": (a.plan.get("decision") or {}).get("router"),
             "router_fallback": any("규칙 라우터" in n for n in a.plan.get("router_notes") or []),
-            "answer": text[:600]}
+            "answer": text}
 
 
 def run_answer(svc, qs, modes: list[str], workers: int, pacer: Pacer) -> tuple[list[str], dict]:
@@ -291,38 +355,64 @@ def run_answer(svc, qs, modes: list[str], workers: int, pacer: Pacer) -> tuple[l
                 print(f"  [{mode} {i}/{len(qs)}] {'✔' if r['correct'] else '✘'} {r['sec']:5.1f}s "
                       f"{r.get('route') or ''}{' →agent' if r.get('escalated') else ''} {it['q']}", flush=True)
         detail[mode] = rows
-        lines += [f"### 모드: {mode}", "",
-                  "| 유형 | 문항 | 답변 정확도 | 근거 섹션 적중 | 미검증 근거 비율 | 에이전트 전환 | 중앙 시간 | 90% 시간 |",
-                  "|---|---:|---:|---:|---:|---:|---:|---:|"]
-        by = defaultdict(list)
+        lines += summarize(mode, rows)
+    return lines, detail
+
+
+def summarize(mode: str, rows: list[dict]) -> list[str]:
+    lines = [f"### 모드: {mode}", "",
+             "| 유형 | 문항 | 답변 정확도 | 결론 정확도 | 근거 섹션 적중 | 미검증 근거 비율 | 에이전트 전환 | 중앙 시간 | 90% 시간 |",
+             "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    by = defaultdict(list)
+    for r in rows:
+        by[r["type"]].append(r)
+    for t in TYPES + ["전체"]:
+        rs = rows if t == "전체" else by.get(t)
+        if not rs:
+            continue
+        secs = sorted(r.get("sec") or 0 for r in rs)
+        cc = [r["conclusion_ok"] for r in rs if r.get("conclusion_ok") is not None]
+        sh = [r["section_hit"] for r in rs if r.get("section_hit") is not None]
+        ev = sum(r.get("n_evidence") or 0 for r in rs)
+        uv = sum(r.get("n_unverified") or 0 for r in rs)
+        esc = sum(1 for r in rs if r.get("escalated") or r.get("route") == "agent")
+        p90 = secs[min(len(secs) - 1, int(round(0.9 * (len(secs) - 1))))]
+        b = "**" if t == "전체" else ""
+        lines.append(f"| {b}{t}{b} | {len(rs)} | {b}{pct(sum(r['correct'] for r in rs), len(rs))}{b} | "
+                     f"{pct(sum(cc), len(cc))} | {pct(sum(sh), len(sh))} | {pct(uv, ev)} | {pct(esc, len(rs))} | "
+                     f"{statistics.median(secs):.1f}s | {p90:.1f}s |")
+    usd = [r["usd"] for r in rows if r.get("usd") is not None]
+    fmt = sum(1 for r in rows if r.get("format_ok"))
+    errs = [r for r in rows if r.get("error")]
+    fb = sum(1 for r in rows if r.get("router_fallback"))
+    lines += ["", f"- 형식 준수율 {pct(fmt, len(rows))} · 오류 {len(errs)}건"
+              + (f" · LLM 라우터 대신 규칙 라우터로 처리 {fb}건 (한도·시간 초과)" if mode == "auto" else "")
+              + (f" · LLM 비용 합계 ${sum(usd):.4f} (질문당 ${sum(usd) / len(usd):.5f})" if usd else ""), ""]
+    wrong = [r for r in rows if not r["correct"]]
+    if wrong:
+        lines += ["틀린 문항"] + [f"- [{r['type']}] {r['q']} — {r.get('error') or r.get('status')}"
+                                   f"{' · 채점 ' + json.dumps({k: v for k, v in (r.get('score') or {}).items() if k != 'correct'}, ensure_ascii=False) if r.get('score') else ''}"
+                                   for r in wrong]
+        lines.append("")
+    return lines
+
+
+def run_rescore(qs, path: str) -> tuple[list[str], dict]:
+    """저장된 답변(.json)을 현재 평가셋·채점 규칙으로 다시 채점 (LLM 호출 없음)."""
+    d = json.loads((ROOT / path).read_text("utf-8")) if not Path(path).is_absolute() else json.loads(Path(path).read_text("utf-8"))
+    by_q = {it["q"]: it for it in qs}
+    lines, detail = [f"## 다시 채점: {path}", ""], {}
+    for mode, rows in (d.get("answer") or {}).items():
+        new = []
         for r in rows:
-            by[r["type"]].append(r)
-        for t in TYPES + ["전체"]:
-            rs = rows if t == "전체" else by.get(t)
-            if not rs:
+            it = by_q.get(r["q"])
+            if it is None or r.get("error"):
                 continue
-            secs = sorted(r["sec"] for r in rs)
-            sh = [r["section_hit"] for r in rs if r.get("section_hit") is not None]
-            ev = sum(r.get("n_evidence") or 0 for r in rs)
-            uv = sum(r.get("n_unverified") or 0 for r in rs)
-            esc = sum(1 for r in rs if r.get("escalated") or r.get("route") == "agent")
-            p90 = secs[min(len(secs) - 1, int(round(0.9 * (len(secs) - 1))))]
-            b = "**" if t == "전체" else ""
-            lines.append(f"| {b}{t}{b} | {len(rs)} | {b}{pct(sum(r['correct'] for r in rs), len(rs))}{b} | "
-                         f"{pct(sum(sh), len(sh))} | {pct(uv, ev)} | {pct(esc, len(rs))} | "
-                         f"{statistics.median(secs):.1f}s | {p90:.1f}s |")
-        usd = [r["usd"] for r in rows if r.get("usd") is not None]
-        fmt = sum(1 for r in rows if r.get("format_ok"))
-        errs = [r for r in rows if r.get("error")]
-        fb = sum(1 for r in rows if r.get("router_fallback"))
-        lines += ["", f"- 형식 준수율 {pct(fmt, len(rows))} · 오류 {len(errs)}건"
-                  + (f" · LLM 라우터 대신 규칙 라우터로 처리 {fb}건 (한도·시간 초과)" if mode == "auto" else "")
-                  + (f" · LLM 비용 합계 ${sum(usd):.4f} (질문당 ${sum(usd) / len(usd):.5f})" if usd else ""), ""]
-        wrong = [r for r in rows if not r["correct"]]
-        if wrong:
-            lines += ["틀린 문항"] + [f"- [{r['type']}] {r['q']} — {r.get('error') or r.get('status')}"
-                                       f"{' · 놓친 값/단어 ' + str(r['score']) if r.get('score') else ''}" for r in wrong]
-            lines.append("")
+            sc = score(it, r.get("answer") or "", r.get("status"))
+            new.append({**r, "type": it["type"], "correct": sc["correct"], "score": sc,
+                        "conclusion_ok": sc.get("conclusion_ok")})
+        detail[mode] = new
+        lines += summarize(mode, new)
     return lines, detail
 
 
@@ -336,6 +426,7 @@ def main():
     ap.add_argument("--channels", nargs="*", default=["dense", "dense,bm25"],
                     help="검색 채널 조합 (쉼표 구분). 기본: dense 와 dense,bm25 비교")
     ap.add_argument("--answer", nargs="*", choices=["auto", "agent", "rag"])
+    ap.add_argument("--rescore", help="저장된 답변 결과(.json)를 지금 채점 규칙으로 다시 채점")
     ap.add_argument("--types", nargs="*", choices=TYPES)
     ap.add_argument("--limit", type=int)
     ap.add_argument("-k", type=int, default=5)
@@ -343,7 +434,7 @@ def main():
     ap.add_argument("--rpm", type=float, default=12, help="LLM 라우터 분당 호출 상한 (0 이면 제한 없음)")
     ap.add_argument("--label", default="")
     a = ap.parse_args()
-    if not (a.check or a.route is not None or a.retrieval or a.answer):
+    if not (a.check or a.route is not None or a.retrieval or a.answer or a.rescore):
         a.check = True
 
     from dart_rag.service import RAGService
@@ -367,6 +458,11 @@ def main():
         out += ls + [""]
         detail["retrieval"] = d
         parts.append("retrieval")
+    if a.rescore:
+        ls, d = run_rescore(qs, a.rescore)
+        out += ls
+        detail["answer"] = d
+        parts.append("rescore")
     if a.answer:
         ls, d = run_answer(svc, qs, a.answer, a.workers, pacer)
         out += ls

@@ -13,6 +13,9 @@
 #   unit     answer 단위. 백만원이면 "131.9조원" 같은 환산 표기도 1% 오차 안에서 정답 처리
 #   keywords 답변에 들어가야 할 단어 (바깥 = 모두, 안쪽 = 하나면 됨)
 #   no_answer true 면 수치를 지어내지 않고 "보유하지 않음/찾지 못함"으로 답해야 정답
+#   expect_max / expect_min  비교 결론: 답변이 '가장(더) 크다/많다/높다'(또는 작다/적다/낮다)라고 말한 회사가 이 회사여야 정답
+#   expect_direction         추이 결론: 답변에 이 방향(증가/감소)이 순서대로 나와야 정답
+#   expect_calc              계산값: {value, unit(% 또는 배), tol} — 답변의 % 또는 배 수치 중 하나가 허용오차 안이어야 정답
 
 # ---------------------------------------------------------------- fact
 - q: SK하이닉스 2026년 반기 연결 매출액은?
@@ -178,6 +181,7 @@
 
 # ---------------------------------------------------------------- compare (여러 회사)
 - q: 삼성전자와 SK하이닉스 2026년 반기 영업이익 비교해줘
+  expect_max: 삼성전자
   type: compare
   route: [wiki]
   corps: [삼성전자, SK하이닉스]
@@ -187,6 +191,7 @@
   answer: [["146,725,209"], ["98,152,891"]]
   unit: 백만원
 - q: 현대차와 삼성전자 2026년 반기 매출액 비교
+  expect_max: 삼성전자
   type: compare
   route: [wiki]
   corps: [현대자동차, 삼성전자]
@@ -196,6 +201,8 @@
   answer: [["95,154,214"], ["305,372,914"]]
   unit: 백만원
 - q: 삼성전자, SK하이닉스, 현대자동차의 2026년 반기 보통주 주당 배당금을 비교해줘
+  expect_max: 현대자동차
+  expect_min: 삼성전자
   type: compare
   route: [wiki]
   corps: [삼성전자, SK하이닉스, 현대자동차]
@@ -206,6 +213,7 @@
   answer: [["746"], ["750"], ["5,000"]]
   unit: 원
 - q: SK하이닉스와 현대차 2026년 반기 부채총계 비교
+  expect_max: 현대자동차
   type: compare
   route: [wiki]
   corps: [SK하이닉스, 현대자동차]
@@ -215,6 +223,7 @@
   answer: [["86,168,986"], ["259,095,722"]]
   unit: 백만원
 - q: 삼성전자와 현대자동차 2026년 반기 연구개발비 비교해줘
+  expect_max: 삼성전자
   type: compare
   route: [wiki]
   corps: [삼성전자, 현대자동차]
@@ -226,6 +235,7 @@
 
 # ---------------------------------------------------------------- trend (여러 기간)
 - q: SK하이닉스 2025년 반기와 2026년 반기 매출 비교
+  expect_direction: [증가]
   type: trend
   route: [wiki]
   corps: [SK하이닉스]
@@ -235,6 +245,7 @@
   answer: [["39,871,093"], ["131,895,033"]]
   unit: 백만원
 - q: 삼성전자 2023년, 2024년, 2025년 반기 영업이익 추이
+  expect_direction: [증가, 감소]
   type: trend
   route: [wiki]
   corps: [삼성전자]
@@ -245,6 +256,7 @@
   answer: [["1,308,725"], ["17,049,887"], ["11,361,329"]]
   unit: 백만원
 - q: 현대차 2025년 1분기와 2026년 1분기 영업이익 비교
+  expect_direction: [감소]
   type: trend
   route: [wiki]
   corps: [현대자동차]
@@ -254,6 +266,7 @@
   answer: [["3,633,609"], ["2,514,686"]]
   unit: 백만원
 - q: 삼성전자 2022년과 2023년 연간 매출액 비교
+  expect_direction: [감소]
   type: trend
   route: [wiki]
   corps: [삼성전자]
@@ -263,6 +276,7 @@
   answer: [["302,231,360"], ["258,935,494"]]
   unit: 백만원
 - q: SK하이닉스 2025년 1분기와 2026년 1분기 영업이익 비교
+  expect_direction: [증가]
   type: trend
   route: [wiki]
   corps: [SK하이닉스]
@@ -279,7 +293,7 @@
   corps: [삼성전자]
   periods: {삼성전자: ["2023.12"]}
   expect: [{section: [경영진단, 사업의 개요], corp: 삼성전자, period: "2023.12"}]
-  keywords: [[반도체, 메모리, 수요, 경기]]
+  keywords: [[반도체, 메모리, 수요, 경기, DS]]
 - q: 현대차 2026년 반기 환율 변동이 실적에 미치는 영향은?
   type: cause
   route: [vector, agent, wiki]
@@ -339,3 +353,138 @@
   route: [agent, wiki, hybrid, vector]
   corps: []
   no_answer: true
+
+# ---------------------------------------------------------------- hard: 최상급 비교 (결론 채점)
+- q: 삼성전자, SK하이닉스, 현대자동차 중 2026년 반기 영업이익이 가장 큰 회사는?
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스, 현대자동차]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"},
+           {section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"},
+           {section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.06"}]
+  answer: [["146,725,209"]]
+  unit: 백만원
+  expect_max: 삼성전자
+- q: 세 회사 중 2026년 반기 부채총계가 가장 작은 곳은? 삼성전자, SK하이닉스, 현대차 기준으로
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스, 현대자동차]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["86,168,986"]]
+  unit: 백만원
+  expect_min: SK하이닉스
+- q: 삼성전자와 SK하이닉스 중 2026년 반기 매출이 더 큰 곳은?
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"},
+           {section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["305,372,914"], ["131,895,033"]]
+  unit: 백만원
+  expect_max: 삼성전자
+- q: 삼성전자, SK하이닉스, 현대자동차 중 2026년 반기 기준 직원 수가 가장 많은 회사는?
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스, 현대자동차]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [임원 및 직원], corp: 삼성전자, period: "2026.06"}]
+  answer: [["129,200"]]
+  unit: 명
+  expect_max: 삼성전자
+- q: 삼성전자, SK하이닉스, 현대자동차의 2026년 반기 연결 현금배당성향을 비교해줘
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스, 현대자동차]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [배당에 관한 사항], corp: 삼성전자, period: "2026.06"},
+           {section: [배당에 관한 사항], corp: SK하이닉스, period: "2026.06"},
+           {section: [배당에 관한 사항], corp: 현대자동차, period: "2026.06"}]
+  answer: [["4.1"], ["0.4"], ["27.0"]]
+  unit: "%"
+  expect_max: 현대자동차
+  expect_min: SK하이닉스
+
+# ---------------------------------------------------------------- hard: 계산 (원문 수치로 직접 계산한 정답)
+- q: SK하이닉스 2026년 반기 영업이익률은?
+  type: calc
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  expect_calc: {value: 74.4, unit: "%", tol: 0.6}       # 98,152,891 / 131,895,033
+- q: 삼성전자 2026년 반기 부채비율은?
+  type: calc
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"}]
+  expect_calc: {value: 31.1, unit: "%", tol: 0.6}       # 180,170,840 / 579,309,676
+- q: 현대차 2026년 반기 매출은 전년 반기보다 몇 % 늘었어?
+  type: calc
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2025.06", "2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.06"}]
+  expect_calc: {value: 2.7, unit: "%", tol: 0.3}        # 95,154,214 / 92,694,438 - 1
+- q: SK하이닉스 2026년 반기 매출은 전년 반기의 몇 배야?
+  type: calc
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2025.06", "2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  expect_calc: {value: 3.31, unit: 배, tol: 0.06}       # 131,895,033 / 39,871,093
+- q: 삼성전자 2025년 3분기 누적 영업이익률은?
+  type: calc
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2025.09"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2025.09"}]
+  expect_calc: {value: 9.8, unit: "%", tol: 0.3}        # 23,527,391 / 239,768,567
+
+# ---------------------------------------------------------------- hard: 상대 기간 (오늘 2026-10-28 기준) · 방향 · 여러 항목
+- q: 하이닉스 작년 반기 영업이익은?
+  type: relative
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2025.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2025.06"}]
+  answer: [["16,653,355"]]
+  unit: 백만원
+- q: 현대차 올해 1분기 영업이익은?
+  type: relative
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.03"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.03"}]
+  answer: [["2,514,686"]]
+  unit: 백만원
+- q: 현대차 영업이익이 작년 반기보다 올해 반기에 늘었어 줄었어?
+  type: relative
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2025.06", "2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.06"}]
+  answer: [["7,235,206"], ["5,365,574"]]
+  unit: 백만원
+  expect_direction: [감소]
+- q: SK하이닉스 2026년 반기 매출, 영업이익, 순이익 한 번에 알려줘
+  type: fact
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["131,895,033"], ["98,152,891"], ["134,268,502", "134,150,412"]]
+  unit: 백만원
+- q: 삼성전자 2026년 반기 영업이익은 2025년 반기보다 얼마나 늘었어?
+  type: calc
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2025.06", "2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"}]
+  answer: [["146,725,209"], ["11,361,329"]]
+  unit: 백만원
+  expect_direction: [증가]
+

@@ -20,3 +20,6 @@ volumes/
 
 # sample pipeline output (python -m dart_rag sample)
 data_sample/
+
+# CLI 보고서 출력 (python -m dart_rag report ... --out report.md)
+/report.md

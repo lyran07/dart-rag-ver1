@@ -11,7 +11,7 @@ from ..config import PROJECT_ROOT
 TEMPLATES_PATH = PROJECT_ROOT / "config" / "report_templates.yaml"
 
 DEFAULTS = {"page_chars": 7000, "page_chars_compare": 4500, "max_pages": 4, "context_chars": 22000,
-            "parallel": 7, "max_output_tokens": 1000, "reasoning": "none"}
+            "parallel": 7, "max_output_tokens": 1600, "reasoning": "none"}
 
 
 @dataclass

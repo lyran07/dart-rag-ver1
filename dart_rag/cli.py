@@ -9,7 +9,7 @@
 
 질의
   ask "질문"   chat   search "질문"   health
-  report SK하이닉스 2026.06 [--compare 2025.06|auto|none] [--out report.md]   기업분석 보고서
+  report SK하이닉스 2026.06 [--compare auto|2025.06] [--out report.md]   기업분석 보고서 (기본: 비교 없음)
   toc <rcept_no>
 """
 from __future__ import annotations
@@ -342,7 +342,7 @@ def build_parser() -> argparse.ArgumentParser:
     rp = sp.add_parser("report", parents=[common], help="기업분석 보고서 1건 생성 (공시 1건 기준)")
     rp.add_argument("corp", help="DART 등록명 (예: SK하이닉스)")
     rp.add_argument("period", help="기준 보고서 기간 (예: 2026.06)")
-    rp.add_argument("--compare", default="auto", help="비교 기간 (예: 2025.06) | auto: 전년 동기 | none")
+    rp.add_argument("--compare", default="none", help="비교 기간 (예: 2025.06) | auto: 전년 동기 | none: 비교 없음(기본)")
     rp.add_argument("--template", default="company_analysis")
     rp.add_argument("--out", help="마크다운 저장 경로")
     rp.add_argument("--no-cache", action="store_true", help="저장본이 있어도 새로 생성")

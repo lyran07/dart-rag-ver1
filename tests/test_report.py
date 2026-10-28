@@ -155,3 +155,46 @@ def test_report_api(tmp_path, monkeypatch):
     assert j2["from_cache"] and j2["status"] == "done"
     assert c.post("/report", json={"corp": "삼성전자", "period": "2024-09"}).status_code == 422
     assert c.post("/report", json={"corp": "삼성전자", "period": "2020.06", "template": "t"}).status_code == 400
+
+
+def test_truncated_json_is_retried_once(tmp_path):
+    class Truncating(EchoLLM):
+        cut = {"실적": 1}
+
+        def step(self, conv, tools, schema, allow_tools=True):
+            for k in list(self.cut):
+                if f"보고서 섹션: {k}" in conv["u"] and self.cut[k] > 0:
+                    self.cut[k] -= 1
+                    return StepResult([], '{"headline": "잘린 출', {"input_tokens": 1, "output_tokens": 1, "usd": 0.0}, 0.0)
+            return super().step(conv, tools, schema, allow_tools)
+    _, rb = _builder(tmp_path, Truncating())
+    job = rb.run("삼성전자", "2024.09", None, "t")
+    fin = next(s for s in job.sections if s.id == "fin")
+    assert fin.status == "done" and "재시도" in fin.diag["retried"]
+
+
+def test_version_ignores_runtime_options(tmp_path):
+    _, rb = _builder(tmp_path)
+    v, orig = rb.version("t"), TPL["t"].options
+    try:
+        TPL["t"].options = {**orig, "parallel": 1, "max_output_tokens": 999}
+        assert rb.version("t") == v
+        TPL["t"].options = {**orig, "page_chars": 100}
+        assert rb.version("t") != v
+    finally:
+        TPL["t"].options = orig
+
+
+def test_pipeline_report_stage_makes_single_version(tmp_path):
+    from dart_rag.pipeline import PipelineRunner, StageContext
+    s = build_sample(tmp_path)
+    ctx = StageContext(s)
+    svc = RAGService(s)
+    llm = EchoLLM()
+    ctx.report_builder = ReportBuilder(svc, llm=llm, templates={"company_analysis": TPL["t"]})
+    rep = PipelineRunner(ctx, ["report"], verbose=False).run(ctx.catalog.filings(latest_only=True))
+    assert not rep.failed and rep.processed["report"] == 2
+    rb = ctx.report_builder
+    assert rb.has_cached("삼성전자", "2024.09", None, "company_analysis")
+    assert not rb.has_cached("삼성전자", "2024.09", "2023.12", "company_analysis")   # 비교 버전은 요청 시
+    assert all("비교: " not in u for _, u in llm.prompts)

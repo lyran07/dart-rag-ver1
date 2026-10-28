@@ -13,7 +13,7 @@ defaults:
   max_pages: 4                # 섹션·기간당 읽는 위키 페이지 수 상한
   context_chars: 22000        # 섹션 1개의 근거 총량 상한
   parallel: 7                 # 동시에 작성하는 섹션 수 (일반 섹션 전부 한 번에)
-  max_output_tokens: 1000     # 섹션당 출력 상한 (출력 길이가 생성 시간을 좌우)
+  max_output_tokens: 1600     # 섹션당 출력 상한. 너무 낮으면 JSON 이 잘려 실패 (잘리면 1회 재시도)
   reasoning: none             # Luna 추론 강도 (속도 우선)
 
 templates:

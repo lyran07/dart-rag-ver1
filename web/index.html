@@ -120,11 +120,12 @@ let reps=[],job=null,timer=null,drawn={};
 async function loadReports(){const c=$('#corp').value;reps=[];
  if(!c){$('#rbase').innerHTML='<option value="">왼쪽에서 기업을 선택하세요</option>';$('#rcmp').innerHTML='';return}
  try{const j=await api(`/companies/${encodeURIComponent(c)}/reports`);reps=j.reports;
-  $('#rbase').innerHTML=reps.map(r=>`<option value="${esc(r.period)}">${esc(r.title)}${r.cached?' · 저장됨':''}</option>`).join('');fillCmp()}
+  $('#rbase').innerHTML=reps.map(r=>`<option value="${esc(r.period)}">${esc(r.title)}</option>`).join('');fillCmp()}
  catch(e){$('#rbase').innerHTML=`<option value="">${esc(e.detail||'공시 없음')}</option>`;$('#rcmp').innerHTML=''}}
 function fillCmp(){const r=reps.find(x=>x.period===$('#rbase').value);if(!r){$('#rcmp').innerHTML='';return}
  const others=reps.filter(x=>x.period!==r.period);
- $('#rcmp').innerHTML=`<option value="auto">전년 동기 (${r.default_compare?esc(r.default_compare):'해당 공시 없음'})</option><option value="none">비교 안 함</option>`
+ $('#rcmp').innerHTML=`<option value="none">비교 안 함${r.cached?' · 저장됨':''}</option>`
+  +(r.default_compare?`<option value="auto">전년 동기 (${esc(r.default_compare)})${r.cached_compare?' · 저장됨':''}</option>`:'')
   +others.map(x=>`<option value="${esc(x.period)}">${esc(x.title)}</option>`).join('')}
 $('#rbase').onchange=fillCmp;
 

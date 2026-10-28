@@ -246,7 +246,8 @@ class WikiStage(Stage):
 
 
 class ReportStage(Stage):
-    """공시 1건 → 기업분석 보고서 1건 (전년 동기 공시가 있으면 비교 포함). data/reports/ 에 저장.
+    """공시 1건 → 기업분석 보고서 1건 (단일 버전: 비교 없음). data/reports/ 에 저장 → 웹에서 즉시 열림.
+    전년 동기 비교 버전은 웹·CLI 에서 요청할 때 만들고 저장한다.
     LLM(GPT-6 Luna)을 쓰므로 OPENAI_API_KEY 가 없으면 실패로 기록하고, 키를 넣고 다시 run 하면 이어서 만든다.
     기재정정 이전본(is_latest=False)은 만들지 않는다."""
     name = "report"
@@ -267,37 +268,18 @@ class ReportStage(Stage):
     def version(self):
         return f"{WikiStage(self.ctx).version()}.{self.builder.version(self.template)}"
 
-    def _ensure_wiki(self, f) -> bool:
-        """비교 공시의 위키가 아직 없으면 (최신 공시부터 처리하므로 흔함) 여기서 만든다."""
-        ws = WikiStage(self.ctx)
-        if self.ctx.catalog.is_done(f.rcept_no, ws.name, ws.version()):
-            return True
-        if not self.ctx.catalog.is_done(f.rcept_no, ChunkStage.name, ChunkStage(self.ctx).version()):
-            return False
-        n = ws.run(f)
-        self.ctx.catalog.mark(f.rcept_no, ws.name, ws.version(), "done", n_items=n, host=self.ctx.host)
-        return True
-
     def run(self, f):
         import os
         if not f.is_latest:
             return 0
-        if not getattr(self.ctx, "report_builder", None) and not os.environ.get(
-                self.builder.svc.agent_config.backends.get("responses", {}).get("api_key_env", "OPENAI_API_KEY")):
-            raise RuntimeError("OPENAI_API_KEY 가 없어 보고서를 만들 수 없습니다 (키를 넣고 다시 run 하면 이어서 생성)")
-        want = f"{int(f.period[:4]) - 1}{f.period[4:]}"
-        prev = next((x for x in self.ctx.catalog.filings([f.corp_code], latest_only=True)
-                     if x.period == want and x.report_type == f.report_type), None)
-        compare = want if prev is not None and self._ensure_wiki(prev) else None
-        job = self.builder.run(f.corp_name, f.period, compare, self.template)
+        key_env = self.builder.svc.agent_config.backends.get("responses", {}).get("api_key_env", "OPENAI_API_KEY")
+        if not getattr(self.ctx, "report_builder", None) and not os.environ.get(key_env):
+            raise RuntimeError(f"{key_env} 가 없어 보고서를 만들 수 없습니다 (키를 넣고 다시 run 하면 이어서 생성)")
+        job = self.builder.run(f.corp_name, f.period, None, self.template)
         bad = [s.id for s in job.sections if s.status == "error"]
         if job.status != "done" or bad:
             raise RuntimeError(f"보고서 생성 실패: {job.error or ''} 오류 섹션 {bad}")
         return sum(s.status == "done" for s in job.sections)
-
-    def finalize(self):
-        if "wiki" in self.ctx.__dict__:
-            self.ctx.wiki.flush()
 
 
 STAGES: dict[str, type[Stage]] = {s.name: s for s in (FetchStage, ParseStage, ChunkStage, EmbedStage, IndexStage,

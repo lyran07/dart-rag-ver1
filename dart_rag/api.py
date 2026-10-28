@@ -7,7 +7,7 @@ GET  /companies              검색 가능한 기업 목록
 GET  /companies/{corp}/wiki  기업 Wiki 허브 (보고서 목록) — wiki 단계 실행 후
 GET  /filings/{rcept_no}/wiki 보고서 섹션 페이지 목록
 GET  /evidence/{chunk_id}    근거 청크 본문·메타 (답변 출처 확인용)
-GET  /companies/{corp}/reports  보고서 생성 가능한 공시 목록 (+ 전년 동기 비교 기간, 저장본 여부)
+GET  /companies/{corp}/reports  보고서 생성 가능한 공시 목록 (+ 전년 동기 비교 기간, 저장본 여부: 단일·비교)
 POST /report                 기업분석 보고서 생성 시작 (저장본이 있으면 즉시 완료 상태로 반환)
 GET  /report/{id}            진행 상황 · 완성된 섹션
 GET  /report/{id}/markdown   마크다운 다운로드
@@ -204,7 +204,7 @@ def feedback(f: Feedback):
 class ReportReq(BaseModel):
     corp: str = Field(..., min_length=1, max_length=50)
     period: str = Field(..., pattern=r"^\d{4}\.\d{2}$")
-    compare_period: str | None = Field("auto", description="YYYY.MM | auto(전년 동기) | none")
+    compare_period: str | None = Field(None, description="YYYY.MM | auto(전년 동기) | none(기본, 비교 없음)")
     template: str = "company_analysis"
 
     @field_validator("compare_period")
@@ -236,7 +236,9 @@ def company_reports(corp: str, template: str = "company_analysis"):
         cmp = rb.default_compare(corp, r["period"])
         out.append({"period": r["period"], "title": r["title"], "report_type": r.get("report_type"),
                     "rcept_no": r.get("rcept_no"), "default_compare": cmp,
-                    "cached": rb.has_cached(corp, r["period"], cmp, template) if template in rb.templates else False})
+                    "cached": rb.has_cached(corp, r["period"], None, template) if template in rb.templates else False,
+                    "cached_compare": (rb.has_cached(corp, r["period"], cmp, template)
+                                       if cmp and template in rb.templates else False)})
     return {"corp": corp, "reports": out}
 
 

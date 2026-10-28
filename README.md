@@ -78,12 +78,13 @@ python -m dart_rag status                    # 진행 상황·용량
 공시 1건(선택적으로 전년 동기 공시와 비교)을 투자자 관점의 섹션으로 정리합니다.
 섹션: 기업 개요 · 실적·재무 요약 · 매출 및 수주 · 원재료·생산설비 · 리스크 요인 · 경영진 시각 · 주주·배당 · 종합 의견 (`config/report_templates.yaml`)
 
-- **파이프라인**: `run` 의 마지막 `report` 단계가 공시마다 보고서를 만들어 `data/reports/` 에 저장합니다 (전년 동기 공시가 있으면 비교 포함). `OPENAI_API_KEY` 필요.
-- **웹**: `보고서` 탭에서 기업·공시를 고르면 저장본은 즉시, 없으면 생성하면서 섹션별로 보여줍니다.
+- **파이프라인**: `run` 의 마지막 `report` 단계가 공시마다 단일 보고서(비교 없음)를 만들어 `data/reports/` 에 저장합니다. `OPENAI_API_KEY` 필요.
+- **웹**: `보고서` 탭에서 기업·공시를 고르면 저장본은 즉시 열립니다. 전년 동기 비교는 선택 시 생성(15초 안팎)하고 저장합니다.
 - **CLI**: 한 건만 만들어 확인
 
 ```powershell
-python -m dart_rag report SK하이닉스 2026.06 --compare auto --out report.md   # auto: 전년 동기 / none / 2025.06
+python -m dart_rag report SK하이닉스 2026.06 --out report.md                  # 단일 (기본)
+python -m dart_rag report SK하이닉스 2026.06 --compare auto --out report.md   # 전년 동기 비교 (또는 2025.06)
 python -m dart_rag run --stages report --latest-only                          # 기존 공시 전부 보고서 생성
 ```
 

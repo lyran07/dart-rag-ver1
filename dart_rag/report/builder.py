@@ -27,7 +27,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
 
-from ..agent.llm import parse_final_json
+from ..agent.llm import AgentLLMError, parse_final_json
 from ..agent.loop import verify_evidence
 from ..routing.auto import select_relevant
 from .templates import ReportTemplate, SectionSpec, load_templates
@@ -88,6 +88,7 @@ SUMMARY_SYSTEM = """당신은 증권사 리서치센터의 애널리스트로, �
 - 보고서 문체(~다)로, 한국어로 간결하게 씁니다."""
 
 _NUM = re.compile(r"\d[\d,]*\.?\d*")
+RUNTIME_OPTIONS = {"parallel", "max_output_tokens"}   # 내용에 영향이 없는 실행 설정 → 바꿔도 저장본 유지
 
 
 def unverified_table_numbers(table_md: str, texts: list[str]) -> list[str]:
@@ -196,7 +197,8 @@ class ReportBuilder:
     def version(self, template: str = "company_analysis") -> str:
         """프롬프트·템플릿·모델 → 해시. 하나라도 바뀌면 저장본을 다시 만든다."""
         tpl = self.templates[template]
-        key = json.dumps([SECTION_SYSTEM, SUMMARY_SYSTEM, SECTION_SCHEMA, tpl.options, self.model_name(),
+        opts = {k: v for k, v in tpl.options.items() if k not in RUNTIME_OPTIONS}
+        key = json.dumps([SECTION_SYSTEM, SUMMARY_SYSTEM, SECTION_SCHEMA, opts, self.model_name(),
                           [vars(sp) for sp in tpl.sections]], ensure_ascii=False, sort_keys=True, default=str)
         return "r1." + hashlib.md5(key.encode("utf-8")).hexdigest()[:8]
 
@@ -380,6 +382,19 @@ class ReportBuilder:
             line += f" / 비교: {job.compare_report['title']}"
         return line
 
+    def _ask(self, job: ReportJob, tpl: ReportTemplate, system: str, user: str, r: SectionResult):
+        """LLM 1회 → JSON. 출력이 잘려 JSON 파싱에 실패하면 1회 더 시도한다."""
+        llm = self.llm(tpl)
+        for attempt in (1, 2):
+            st = llm.step(llm.start(system, user), None, SECTION_SCHEMA, allow_tools=False)
+            self._add_usage(job, st.usage or {})
+            try:
+                return parse_final_json(st.final_text), st, attempt
+            except AgentLLMError:
+                if attempt == 2:
+                    raise
+                r.diag["retried"] = "JSON 파싱 실패 (출력 잘림 추정) → 재시도"
+
     @staticmethod
     def _fill(r: SectionResult, data: dict) -> None:
         r.headline = str(data.get("headline", "")).strip()
@@ -412,11 +427,7 @@ class ReportBuilder:
                     f"보고서 섹션: {spec.title}\n[섹션 지시]\n{spec.instruction}"
                     + ("" if spec.table else "\n이 섹션은 표가 꼭 필요하지 않다. 특징을 보여주는 핵심 수치가 있을 때만 작은 표를 쓴다.")
                     + "\n\n[근거]\n" + "\n\n".join(parts))
-            llm = self.llm(tpl)
-            conv = llm.start(SECTION_SYSTEM, user)
-            st = llm.step(conv, None, SECTION_SCHEMA, allow_tools=False)
-            self._add_usage(job, st.usage or {})
-            data = parse_final_json(st.final_text)
+            data, st, _ = self._ask(job, tpl, SECTION_SYSTEM, user, r)
             seen = {it["id"]: it for it in items}
             sources, check = verify_evidence(data.get("evidence") or [], seen)
             table = str(data.get("table_markdown") or "").strip()
@@ -434,7 +445,7 @@ class ReportBuilder:
             r.diag["total_sec"] = round(time.perf_counter() - t0, 2)
 
     def _summary(self, job: ReportJob, tpl: ReportTemplate, spec: SectionSpec, r: SectionResult) -> None:
-        r.status = "running"
+        r.status, r.diag = "running", {}
         t0 = time.perf_counter()
         try:
             done = [s for s in job.sections if s.kind == "section" and s.status == "done"]
@@ -449,13 +460,10 @@ class ReportBuilder:
                 blocks.append(re.sub(r"\[\d+\]", "", "\n".join(lines)))
             user = (f"회사: {job.corp}\n{self._period_line(job)}\n[섹션 지시]\n{spec.instruction}\n\n"
                     "[섹션 요약]\n" + "\n\n".join(blocks))
-            llm = self.llm(tpl)
-            conv = llm.start(SUMMARY_SYSTEM, user)
-            st = llm.step(conv, None, SECTION_SCHEMA, allow_tools=False)
-            self._add_usage(job, st.usage or {})
-            self._fill(r, parse_final_json(st.final_text))
+            data, st, _ = self._ask(job, tpl, SUMMARY_SYSTEM, user, r)
+            self._fill(r, data)
             r.watch = r.watch[:1]
-            r.diag = {"n_sections_used": len(done), "context_chars": len(user), "llm_sec": round(st.seconds, 2),
+            r.diag = {**r.diag, "n_sections_used": len(done), "context_chars": len(user), "llm_sec": round(st.seconds, 2),
                       "input_tokens": (st.usage or {}).get("input_tokens"),
                       "output_tokens": (st.usage or {}).get("output_tokens")}
             r.status = "done" if (r.headline or r.overview) else "no_evidence"

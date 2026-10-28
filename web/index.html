@@ -149,7 +149,7 @@ function secHtml(s){const [lab,cls]=ST[s.status]||[s.status,''];const sid=esc(s.
  if(s.sources.length)h+=`<details><summary>근거 ${s.sources.length}건</summary>`+s.sources.map(x=>`<div class="src" id="src-${sid}-${x.n}"><b>[${x.n}]</b> ${esc(x.source)} ${x.verified?'':'<span class="tag warn">미검증</span>'}<div class="quote">${esc(x.quote)}</div>${x.url?`<a target="_blank" href="${esc(x.url)}">DART 원문</a> · `:''}<a href="#" data-w="${esc(x.chunk_id)}">위키 원문 보기</a><pre class="wikitext" style="display:none"></pre></div>`).join('')+'</details>';
  const d=s.diag||{};const dg=[];
  if(d.total_sec!=null)dg.push(`${d.total_sec}s`);if(d.n_context!=null)dg.push(`근거 ${d.n_context}개 · ${(d.context_chars||0).toLocaleString()}자`);
- if(d.pages_trimmed)dg.push(`발췌로 줄인 페이지 ${d.pages_trimmed}`);if(d.dropped_for_budget)dg.push(`글자 예산 초과로 뺀 근거 ${d.dropped_for_budget}`);
+ if(d.pages_trimmed)dg.push(`발췌로 줄인 페이지 ${d.pages_trimmed}`);if(d.pages_fallback)dg.push(`키워드 발췌 실패로 앞부분 사용 ${d.pages_fallback}`);if(d.dropped_for_budget)dg.push(`글자 예산 초과로 뺀 근거 ${d.dropped_for_budget}`);
  if(d.input_tokens!=null)dg.push(`토큰 ${d.input_tokens}/${d.output_tokens}`);
  if(dg.length)h+=`<div class="diag">진단: ${esc(dg.join(' · '))}</div>`;return h}
 function render(j){job=j;$('#rout').style.display='';$('#rtitle').textContent=`${j.corp} ${j.title}`;

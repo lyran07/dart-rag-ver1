@@ -198,3 +198,38 @@ def test_pipeline_report_stage_makes_single_version(tmp_path):
     assert rb.has_cached("삼성전자", "2024.09", None, "company_analysis")
     assert not rb.has_cached("삼성전자", "2024.09", "2023.12", "company_analysis")   # 비교 버전은 요청 시
     assert all("비교: " not in u for _, u in llm.prompts)
+
+
+def test_keyword_miss_falls_back_to_page_head(tmp_path):
+    """섹션 키워드가 본문에 거의 없으면(경영진 시각 사례) 제목 줄만 남지 않고 앞부분 본문을 쓴다."""
+    from types import SimpleNamespace
+
+    from dart_rag.report.builder import MIN_EXCERPT_RATIO
+    page = "# IV. 이사의 경영진단\n\n> 출처: …\n\n" + "\n\n".join(f"{i}. 2023년 매출 259조원, 영업이익 7조원을 기록했다. " * 20
+                                                                for i in range(30))
+    node = {"id": "section:p1", "corp": "가", "report_type": "사업보고서", "period": "2023.12", "title": "IV. 이사의 경영진단",
+            "rcept_no": "r1"}
+    wiki = SimpleNamespace(find_sections=lambda c, p, pats: [node], page_text=lambda n: page)
+    routes = SimpleNamespace(by_id={}, patterns=lambda ids: ["IV."])
+    svc = SimpleNamespace(wiki=wiki, routes=routes, settings=SimpleNamespace(storage=SimpleNamespace(root_path=tmp_path)))
+    tpl = ReportTemplate("x", "x", [SectionSpec("mg", "경영진", "", routes=["mdna"], keywords=["경영진단", "분석의견"])])
+    rb = ReportBuilder(svc, llm=EchoLLM(), templates={"x": tpl})
+    job = SimpleNamespace(corp="가", period="2023.12", compare_period=None)
+    items, diag = rb.gather(job, tpl, tpl.sections[0])
+    limit = tpl.options["page_chars"]
+    assert diag["pages_fallback"] == 1 and len(items[0]["text"]) > limit * MIN_EXCERPT_RATIO
+    assert "매출 259조원" in items[0]["text"] and "앞부분만 사용" in items[0]["text"]
+
+
+def test_version_is_per_report_type(tmp_path):
+    """사업보고서 전용 섹션을 고쳐도 분기·반기 보고서 저장본의 버전은 그대로."""
+    _, rb = _builder(tmp_path)
+    mg = next(s for s in TPL["t"].sections if s.id == "mg")
+    v_q, v_a = rb.version("t", "분기보고서"), rb.version("t", "사업보고서")
+    orig = mg.keywords
+    try:
+        mg.keywords = ["매출", "전망"]
+        assert rb.version("t", "분기보고서") == v_q
+        assert rb.version("t", "사업보고서") != v_a
+    finally:
+        mg.keywords = orig

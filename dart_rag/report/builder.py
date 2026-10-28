@@ -89,6 +89,21 @@ SUMMARY_SYSTEM = """당신은 증권사 리서치센터의 애널리스트로, �
 
 _NUM = re.compile(r"\d[\d,]*\.?\d*")
 RUNTIME_OPTIONS = {"parallel", "max_output_tokens"}   # 내용에 영향이 없는 실행 설정 → 바꿔도 저장본 유지
+MIN_EXCERPT_RATIO = 0.3   # 키워드 발췌가 글자 예산의 30% 미만이면 키워드가 본문과 안 맞은 것 → 앞부분으로 보완
+
+
+def head_excerpt(page: str, limit: int) -> str:
+    """페이지 앞부분을 문단 단위로 limit 안에서 자른다 (키워드 발췌가 실패했을 때의 보완)."""
+    out, used = [], 0
+    for p in page.split("\n\n"):
+        if used + len(p) > limit:
+            if not out:                       # 첫 문단이 예산보다 길면 잘라서라도 넣는다
+                out.append(p[:limit])
+                used = len(out[0])
+            break
+        out.append(p)
+        used += len(p) + 2
+    return "\n\n".join(out) + f"\n\n(※ 긴 섹션이라 앞부분만 사용: {used:,}/{len(page):,}자)"
 
 
 def unverified_table_numbers(table_md: str, texts: list[str]) -> list[str]:
@@ -194,13 +209,22 @@ class ReportBuilder:
         cfg = self.svc.agent_config
         return str((cfg.backends.get("responses") or {}).get("model", "?"))
 
-    def version(self, template: str = "company_analysis") -> str:
-        """프롬프트·템플릿·모델 → 해시. 하나라도 바뀌면 저장본을 다시 만든다."""
+    @staticmethod
+    def sections_for(tpl: ReportTemplate, report_type: str | None) -> list[SectionSpec]:
+        """이 공시 유형의 보고서에 들어가는 섹션 (report_types 로 제한된 섹션은 해당 유형에만)."""
+        return [sp for sp in tpl.sections
+                if not sp.report_types or report_type is None or report_type in sp.report_types]
+
+    def version(self, template: str = "company_analysis", report_type: str | None = None) -> str:
+        """프롬프트·모델·내용 관련 옵션 + **이 공시 유형에 들어가는 섹션** → 해시.
+        하나라도 바뀌면 그 유형의 저장본만 다시 만든다 (예: 사업보고서 전용 섹션을 고쳐도 반기·분기 저장본은 유지).
+        report_type=None 이면 모든 섹션 (파이프라인 단계 버전용)."""
         tpl = self.templates[template]
         opts = {k: v for k, v in tpl.options.items() if k not in RUNTIME_OPTIONS}
         key = json.dumps([SECTION_SYSTEM, SUMMARY_SYSTEM, SECTION_SCHEMA, opts, self.model_name(),
-                          [vars(sp) for sp in tpl.sections]], ensure_ascii=False, sort_keys=True, default=str)
-        return "r1." + hashlib.md5(key.encode("utf-8")).hexdigest()[:8]
+                          [vars(sp) for sp in self.sections_for(tpl, report_type)]],
+                         ensure_ascii=False, sort_keys=True, default=str)
+        return "r2." + hashlib.md5(key.encode("utf-8")).hexdigest()[:8]
 
     def cache_path(self, corp_code: str, base_rcept: str, compare_rcept: str | None, template: str) -> Path:
         name = base_rcept + (f"__vs_{compare_rcept}" if compare_rcept else "") + f".{template}.json"
@@ -259,7 +283,8 @@ class ReportBuilder:
         if not p.exists():
             return False
         try:
-            return json.loads(p.read_text("utf-8")).get("version") == self.version(template)
+            return json.loads(p.read_text("utf-8")).get("version") == self.version(
+                template, reps[period].get("report_type"))
         except (OSError, ValueError):
             return False
 
@@ -287,9 +312,8 @@ class ReportBuilder:
                         compare_report=({k: comp.get(k) for k in ("title", "report_type", "period", "rcept_no")}
                                         if comp else None),
                         sections=[SectionResult(s.id, s.title, "summary" if s.summary else "section")
-                                  for s in tpl.sections
-                                  if not s.report_types or base.get("report_type") in s.report_types],
-                        version=self.version(template))
+                                  for s in self.sections_for(tpl, base.get("report_type"))],
+                        version=self.version(template, base.get("report_type")))
         cached = self.load_cached(job) if use_cache else None
         if cached is not None:
             job = cached
@@ -357,8 +381,8 @@ class ReportBuilder:
         periods = [job.period] + ([job.compare_period] if job.compare_period else [])
         o = tpl.options
         page_chars = int(o["page_chars_compare"] if job.compare_period else o["page_chars"])
-        items, diag = [], {"pages_found": 0, "pages_used": 0, "pages_trimmed": 0, "missing_routes": [],
-                           "periods_without_pages": []}
+        items, diag = [], {"pages_found": 0, "pages_used": 0, "pages_trimmed": 0, "pages_fallback": 0,
+                           "missing_routes": [], "periods_without_pages": []}
         diag["missing_routes"] = [rid for rid in spec.routes if rid not in by_id]
         for period in periods:
             nodes = wiki.find_sections(job.corp, period, pats) if pats else []
@@ -368,6 +392,9 @@ class ReportBuilder:
             for n in nodes[: int(o["max_pages"])]:
                 page = wiki.page_text(n)
                 text = select_relevant(page, " ".join(kws) or spec.title, kws, page_chars)
+                if len(page) > page_chars and len(text) < page_chars * MIN_EXCERPT_RATIO:
+                    text = head_excerpt(page, page_chars)      # 키워드가 본문 문단에 거의 없음 → 앞부분 사용
+                    diag["pages_fallback"] += 1
                 diag["pages_trimmed"] += len(text) < len(page)
                 items.append({"id": f"wiki:{n['id'].split(':', 1)[1]}", "text": text,
                               "source": f"{n['corp']} {n['report_type']}({n['period']}) · {n['title']}",

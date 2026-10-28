@@ -101,11 +101,11 @@ class FakeWiki:
         return f"가. 요약연결재무정보\n(단위: 백만원)\n| 매출액 | 131,895,033 |  ({n['period']})"
 
 
-def make_auto(answer_outputs, router=None, agent_answer=None):
+def make_auto(answer_outputs, router=None, agent_answer=None, rules_first=True):
     agent = types.SimpleNamespace(run=lambda q: agent_answer or Answer(q, "에이전트 답", [], {"mode": "agent"},
                                                                         "agent:x", {}, status="answered"))
     svc = types.SimpleNamespace(wiki=FakeWiki(), routes=ROUTES, agent=agent, retrieve=None)
-    cfg = AgentConfig(auto={"router_timeout_sec": 0.3})
+    cfg = AgentConfig(auto={"router_timeout_sec": 0.3, "rules_first": rules_first})
     return AutoAnswerer(svc, cfg, rules(), router, FakeLLM(answer_outputs), today=TODAY)
 
 
@@ -131,8 +131,23 @@ def test_auto_router_timeout_uses_rules():
     slow = FakeLLM([{"route": "agent", "companies": [], "periods": [], "sections": [], "search_query": "",
                      "reason": ""}], delay=1.0)
     router = LLMQueryRouter(slow, ROUTES, FILINGS, ALIASES, today=TODAY)
-    a = make_auto([ok_answer("wiki:SK하이닉스2026.06")], router=router).ask("SK하이닉스 2026년 반기 매출")
+    a = make_auto([ok_answer("wiki:SK하이닉스2026.06")], router=router, rules_first=False).ask("SK하이닉스 2026년 반기 매출")
     assert a.plan["route"] == "wiki" and any("초과" in n for n in a.plan["router_notes"])
+
+
+def test_auto_rules_first_skips_llm_router_only_when_rules_are_sure():
+    class Boom:
+        calls = 0
+
+        def decide(self, q):
+            Boom.calls += 1
+            raise RuntimeError("부르면 안 됨")
+    a = make_auto([ok_answer("wiki:SK하이닉스2026.06")], router=Boom()).ask("SK하이닉스 2026년 반기 매출")
+    assert a.plan["route"] == "wiki" and Boom.calls == 0 and any("생략" in n for n in a.plan["router_notes"])
+    # 규칙이 wiki 로 확정하지 못하는 질문(동의어)은 LLM 라우터에게 묻는다 (여기서는 실패 → 규칙으로 대체)
+    auto = make_auto([ok_answer("x")], router=Boom())
+    d, notes = auto.route("하이닉스 2026년 반기 순익은?")
+    assert Boom.calls == 1 and any("실패" in n for n in notes)
 
 
 def test_wiki_paths_are_relative(tmp_path: Path):

@@ -27,11 +27,15 @@ SYSTEM = """당신은 한국 상장회사 DART 공시(사업·반기·분기보�
 - evidence 의 chunk_id 는 도구 결과에 나온 chunk_id 를 그대로 쓰고, quote 에는 근거가 되는 원문 부분을
   숫자까지 그대로 200자 이내로 옮깁니다.
 - 근거를 찾지 못했으면 찾지 못했다고 conclusion 에 쓰고 evidence 는 비웁니다.
+- 여러 회사·기간의 값을 비교하거나 증감을 묻는 질문이면 comparison 에 비교한 값을 원문 그대로 모두 넣습니다
+  (subject=회사명, item=항목명, period=기준월 예: 2026.06, value=원문 숫자, unit=단위). 같은 항목은 같은 item·unit 으로 씁니다.
+  대소·순위·증감 결론은 값을 크기순으로 정렬해 확인한 뒤 씁니다. 비교가 아닌 질문은 comparison 을 빈 배열로 둡니다.
 - 답변은 한국어로 간결하게 씁니다.
 
 [최종 출력 형식] 아래 키를 가진 JSON 객체 하나만 출력합니다.
 {"conclusion": str, "key_points": [str], "interpretation": [str],
- "evidence": [{"chunk_id": str, "quote": str}], "needs_clarification": bool}"""
+ "evidence": [{"chunk_id": str, "quote": str}], "needs_clarification": bool,
+ "comparison": [{"subject": str, "item": str, "period": str, "value": str, "unit": str}]}"""
 
 FORCE_FINAL = ("도구 호출 한도에 도달했습니다. 더 이상 도구를 호출하지 말고, 지금까지 조회한 근거만으로 "
                "최종 답변 JSON 을 출력하세요. 확인하지 못한 부분은 확인하지 못했다고 적으세요.")
@@ -48,7 +52,7 @@ ANSWER_SCHEMA = {
     "schema": {
         "type": "object",
         "additionalProperties": False,
-        "required": ["conclusion", "key_points", "interpretation", "evidence", "needs_clarification"],
+        "required": ["conclusion", "key_points", "interpretation", "evidence", "needs_clarification", "comparison"],
         "properties": {
             "conclusion": {"type": "string", "description": "질문에 대한 핵심 답변 1~2문장"},
             "key_points": {"type": "array", "items": {"type": "string"},
@@ -60,6 +64,12 @@ ANSWER_SCHEMA = {
                 "properties": {"chunk_id": {"type": "string"}, "quote": {"type": "string"}}}},
             "needs_clarification": {"type": "boolean",
                                     "description": "회사·기간이 모호해 사용자에게 되물어야 하면 true"},
+            "comparison": {"type": "array", "description": "비교·증감 질문일 때 비교한 값 (코드가 순위·증감을 계산해 검증)",
+                           "items": {"type": "object", "additionalProperties": False,
+                                     "required": ["subject", "item", "period", "value", "unit"],
+                                     "properties": {"subject": {"type": "string"}, "item": {"type": "string"},
+                                                    "period": {"type": "string"}, "value": {"type": "string"},
+                                                    "unit": {"type": "string"}}}},
         },
     },
 }

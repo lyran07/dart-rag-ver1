@@ -6,6 +6,9 @@
   agent  : 에이전트 루프로 위임
 단일 답변이 근거를 하나도 인용하지 못하면 (escalate_to_agent=true 일 때) 에이전트로 넘긴다.
 LLM 라우터가 실패하거나 router_timeout_sec 를 넘기면 규칙 라우터 결과로 진행한다.
+rules_first(기본 true): 규칙 라우터가 회사·기간·섹션을 모두 잡아 wiki 로 판정하면 LLM 라우터를 부르지 않는다
+  (평가셋에서 규칙의 wiki 판정은 전부 맞았음 → 약 1초 단축, Gemini 무료 한도 절약).
+  규칙이 hybrid/vector/agent 로 판정한 질문(동의어·개념·복합)만 LLM 라우터에게 묻는다.
 """
 from __future__ import annotations
 
@@ -15,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FutureTimeout
 from datetime import date
 
+from ..agent.compare import check_and_fix
 from ..agent.llm import QuotaExhausted, parse_final_json
 from ..agent.loop import render, verify_evidence
 from ..agent.prompts import ANSWER_SCHEMA
@@ -29,7 +33,10 @@ SINGLE_SYSTEM = """당신은 한국 상장회사 DART 공시 분석가입니다.
 - 문장 안에서 근거를 evidence 배열 순서 번호 [1], [2] 로 인용합니다. evidence 의 chunk_id 는 [근거] 의 id 를 그대로,
   quote 에는 근거 원문 일부를 숫자까지 그대로 200자 이내로 옮깁니다.
 - 근거로 답할 수 없으면 evidence 를 빈 배열로 두고 conclusion 에 무엇이 부족한지 적습니다.
-- 최종 출력은 JSON 객체 하나: {"conclusion", "key_points", "interpretation", "evidence", "needs_clarification"}"""
+- 여러 회사·기간의 값을 비교하거나 증감을 묻는 질문이면 comparison 에 비교한 값을 원문 그대로 모두 넣습니다
+  (subject=회사명, item=항목명, period=기준월 예: 2026.06, value=원문 숫자, unit=단위). 같은 항목은 같은 item·unit 으로 씁니다.
+  대소·순위·증감 결론은 값을 크기순으로 정렬해 확인한 뒤 씁니다. 비교가 아닌 질문은 comparison 을 빈 배열로 둡니다.
+- 최종 출력은 JSON 객체 하나: {"conclusion", "key_points", "interpretation", "evidence", "needs_clarification", "comparison"}"""
 
 
 _PARTICLE = re.compile(r"(은|는|이|가|을|를|의|랑|이랑|과|와|도|만|에|에서|으로|로|야|요|해줘|알려줘)$")
@@ -83,6 +90,7 @@ class AutoAnswerer:
         self.ctx_chars = int(a.get("context_chars", 16000))
         self.search_k = int(a.get("search_k", 8))
         self.escalate = bool(a.get("escalate_to_agent", True))
+        self.rules_first = bool(a.get("rules_first", True))
         self.cooldown_sec = float(a.get("router_cooldown_sec", 600))
         self._router_off_until = 0.0          # 한도 소진 시 이 시각까지 LLM 라우터 건너뜀
         self._pool = ThreadPoolExecutor(max_workers=2)
@@ -92,6 +100,12 @@ class AutoAnswerer:
         notes: list[str] = []
         if self.llm_router is None:
             return self.rules.decide(question), notes
+        if self.rules_first:
+            rd = self.rules.decide(question)
+            if (rd.route == "wiki" and rd.companies and rd.sections
+                    and all(rd.periods.get(c["corp_name"]) for c in rd.companies)):
+                notes.append("규칙 라우터가 wiki 로 확정 → LLM 라우터 생략")
+                return rd, notes
         if time.time() < self._router_off_until:
             notes.append(f"LLM 라우터 한도 소진으로 {int(self._router_off_until - time.time())}s 동안 규칙 라우터 사용")
             return self.rules.decide(question), notes
@@ -147,6 +161,11 @@ class AutoAnswerer:
 
     # ------------------------------------------------------------------ 3. 답변
     def answer_once(self, question: str, items: list[dict]) -> tuple[dict, dict, float]:
+        data, usage, sec, _ = self._answer(question, items)
+        return data, usage, sec
+
+    def _answer(self, question: str, items: list[dict]):
+        """answer_once + 대화 객체 (비교 서술을 다시 쓰게 할 때 같은 대화를 이어 쓴다). 요청마다 지역 변수로 둔다."""
         parts, used = [], 0
         for it in items:
             block = f"<근거 id={it['id']}>\n출처: {it['source']}\n{it['text']}\n</근거>"
@@ -157,7 +176,7 @@ class AutoAnswerer:
         today = (self.today or date.today()).isoformat()
         conv = self.answer_llm.start(SINGLE_SYSTEM, f"오늘 날짜: {today}\n질문: {question}\n\n[근거]\n" + "\n\n".join(parts))
         st = self.answer_llm.step(conv, None, ANSWER_SCHEMA, allow_tools=False)
-        return parse_final_json(st.final_text), st.usage, st.seconds
+        return parse_final_json(st.final_text), st.usage, st.seconds, conv
 
     # ------------------------------------------------------------------
     def ask(self, question: str) -> Answer:
@@ -181,12 +200,21 @@ class AutoAnswerer:
             return Answer(question, "요청한 조건에 맞는 공시 근거를 찾지 못했습니다.", [], plan, "none",
                           {"route": round(t_route, 3), "gather": round(t_gather, 3)}, status="no_evidence")
 
-        data, usage, t_ans = self.answer_once(question, items)
+        data, usage, t_ans, conv = self._answer(question, items)
         seen = {it["id"]: it for it in items}
+        data, comp = check_and_fix(self.answer_llm, conv, data, seen,
+                                   getattr(self.cfg, "aliases", {}), ANSWER_SCHEMA)
+        if comp.get("retried"):
+            t_ans += comp.get("seconds", 0.0)
+            usage = {k: (usage.get(k) or 0) + (comp["usage"].get(k) or 0) for k in set(usage) | set(comp["usage"])
+                     if k != "usd"} | {"usd": (None if usage.get("usd") is None or comp["usage"].get("usd") is None
+                                               else round(usage["usd"] + comp["usage"]["usd"], 6))}
         sources, check = verify_evidence(data.get("evidence") or [], seen)
         if not sources and not data.get("needs_clarification") and self.escalate:
             return self._agent(question, plan, t_route, t0, reason="단일 답변이 근거를 인용하지 못함")
         status = "needs_clarification" if data.get("needs_clarification") else ("answered" if sources else "no_evidence")
+        if comp:
+            plan["comparison"] = {k: v for k, v in comp.items() if k != "usage"}
         plan.update(evidence_check=check, usage=usage, n_context=len(items), search_timings=st_t,
                     answer_model=f"{getattr(self.answer_llm, 'backend', '?')}:{getattr(self.answer_llm, 'model', '?')}")
         return Answer(question, render(data, check), sources, plan,

@@ -53,6 +53,7 @@ aliases:
 auto:
   router: gemini             # gemini (chat 백엔드) | luna (responses 백엔드, reasoning none) | rules (LLM 없음)
   router_timeout_sec: 6      # 라우터가 이 시간 안에 답하지 않으면 규칙 라우터 결과로 진행
+  rules_first: true          # 규칙 라우터가 회사·기간·섹션을 다 잡아 wiki 로 판정하면 LLM 라우터 생략
   answer_backend: responses  # 단일 답변 LLM (responses = Luna)
   answer_reasoning: none     # 단일 답변은 속도 우선
   answer_max_output_tokens: 1200

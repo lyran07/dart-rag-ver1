@@ -55,7 +55,7 @@ class QueryPlan:
 
 class QueryAnalyzer:
     def __init__(self, lexicon_path: Path | None = None, corp_names: list[str] | None = None,
-                 latest_only: bool = True, multi_facet: bool = True):
+                 latest_only: bool = True, multi_facet: bool = True, aliases: dict[str, str] | None = None):
         lex = self._load_lexicon(lexicon_path or LEXICON_PATH)
         self.synonyms = lex.get("synonyms", {}) or {}
         self.section_hints = lex.get("section_hints", {}) or {}
@@ -63,6 +63,7 @@ class QueryAnalyzer:
         self.corp_names = sorted(set(corp_names or []), key=len, reverse=True)
         self.latest_only = latest_only
         self.multi_facet = multi_facet
+        self.aliases = dict(aliases or {})        # 별칭 → DART 등록명 (config/agent.yaml, 예: 현대차 → 현대자동차)
 
     @staticmethod
     def _load_lexicon(path: Path) -> dict:
@@ -78,11 +79,13 @@ class QueryAnalyzer:
     def find_corps(self, q: str) -> list[str]:
         """긴 이름부터, 겹치지 않게 (예: '삼성전자우' 가 있으면 '삼성전자' 로 중복 매칭 안 함)."""
         ql, used, out = q.lower(), [], []
-        for c in self.corp_names:
-            i = ql.find(c.lower())
-            if i >= 0 and not any(a <= i < b for a, b in used):
-                used.append((i, i + len(c)))
-                out.append((i, c))
+        names = set(self.corp_names)
+        cands = [(c, c) for c in self.corp_names] + [(a, t) for a, t in self.aliases.items() if t in names]
+        for key, corp in sorted(cands, key=lambda x: len(x[0]), reverse=True):
+            i = ql.find(key.lower())
+            if i >= 0 and not any(a <= i < b for a, b in used) and corp not in [c for _, c in out]:
+                used.append((i, i + len(key)))
+                out.append((i, corp))
         return [c for _, c in sorted(out)]
 
     def analyze(self, q: str, extra: dict | None = None) -> QueryPlan:

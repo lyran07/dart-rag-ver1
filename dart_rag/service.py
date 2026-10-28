@@ -49,7 +49,8 @@ class RAGService:
         rc = self.settings.retrieval
         rr = self._reranker if self._reranker is not None else make_reranker(self.settings.rerank, rc.candidates)
         return HybridRetriever(self.embedder, self.index, self.docstore, make_bm25(self.settings), rc,
-                               QueryAnalyzer(latest_only=rc.latest_only, multi_facet=rc.multi_facet), rr)
+                               QueryAnalyzer(latest_only=rc.latest_only, multi_facet=rc.multi_facet,
+                                             aliases=self.agent_config.aliases), rr)
 
     @cached_property
     def wiki(self):

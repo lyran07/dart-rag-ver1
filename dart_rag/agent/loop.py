@@ -15,6 +15,7 @@ import time
 from datetime import date
 
 from ..domain import Answer
+from .compare import check_and_fix
 from .llm import AgentLLMError, parse_final_json
 from .prompts import ANSWER_SCHEMA, FORCE_FINAL, SYSTEM, user_message
 from .tools import TOOL_SCHEMAS
@@ -58,6 +59,10 @@ def render(data: dict, check: dict) -> str:
         out += ["", "**주요 내용 (공시 확인 사항)**"] + [f"- {x}" for x in data["key_points"]]
     if data.get("interpretation"):
         out += ["", "**해석**"] + [f"- {x}" for x in data["interpretation"]]
+    if data.get("_calc_lines"):
+        out += ["", "**계산 확인 (코드)**"] + list(data["_calc_lines"])
+    if data.get("_calc_issues"):
+        out += ["", "⚠ 비교 서술이 계산 결과와 다릅니다: " + "; ".join(data["_calc_issues"])]
     if check.get("n_unverified"):
         out += ["", f"⚠ 근거 {check['n_unverified']}건이 원문과 대조 검증되지 않았습니다. 출처를 직접 확인하세요."]
     return "\n".join(out).strip()
@@ -112,6 +117,11 @@ class AgentLoop:
                 trace.append({"round": "final(forced)", "llm_sec": round(st.seconds, 2)})
                 final = st.final_text
             data = parse_final_json(final)
+            data, comp = check_and_fix(self.llm, conv, data, session.seen, getattr(cfg, "aliases", {}), ANSWER_SCHEMA)
+            if comp.get("retried"):
+                add_usage(comp["usage"])
+                t_llm += comp.get("seconds", 0.0)
+                trace.append({"round": "comparison-fix", "llm_sec": round(comp.get("seconds", 0.0), 2)})
         except AgentLLMError as e:
             raise AgentError(str(e)) from e
 
@@ -122,7 +132,8 @@ class AgentLoop:
         plan = {"mode": "agent", "backend": getattr(self.llm, "backend", "?"), "model": getattr(self.llm, "model", "?"),
                 "reasoning": getattr(self.llm, "reasoning", None), "trace": trace, "usage": usage,
                 "evidence_check": check, "rounds": sum(1 for t in trace if isinstance(t.get("round"), int)),
-                "n_seen": len(session.seen)}
+                "n_seen": len(session.seen),
+                **({"comparison": {k: v for k, v in comp.items() if k != "usage"}} if comp else {})}
         return Answer(question, render(data, check), sources, plan,
                       f"agent:{getattr(self.llm, 'model', '?')}",
                       {"agent_total": round(total, 3), "llm": round(t_llm, 3), "tools": round(t_tools, 3)},

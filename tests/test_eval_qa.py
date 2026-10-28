@@ -38,3 +38,14 @@ def test_conclusion_checks():
     assert not conclusion_checks({"expect_direction": ["증가", "감소"]}, "2024년 감소했다가 2025년 증가했다")["expect_direction"]
     assert conclusion_checks({"expect_calc": {"value": 74.4, "unit": "%", "tol": 0.6}}, "영업이익률은 약 74.4%다")["expect_calc"]
     assert conclusion_checks({"expect_calc": {"value": 3.31, "unit": "배", "tol": 0.06}}, "약 3.3배로 늘었다")["expect_calc"]
+
+
+def test_rank_required_only_when_asked():
+    from scripts.eval_qa import conclusion_checks, score
+    it = {"q": "세 회사 배당금을 비교해줘", "corps": ["삼성전자", "SK하이닉스", "현대자동차"],
+          "expect_max": "현대자동차", "expect_min": "삼성전자"}
+    assert all(conclusion_checks(it, "현대자동차가 가장 많고, SK하이닉스가 삼성전자보다 4원 많다.").values())
+    asked = {**it, "q": "세 회사 중 배당금이 가장 적은 곳은?"}
+    assert not conclusion_checks(asked, "현대자동차가 가장 많다.")["expect_min"]
+    it2 = {"q": "삼성전자 직원 수는?", "answer": [["129,200"]], "unit": "명"}
+    assert not score(it2, "129,200명이지만 확인이 필요합니다", "needs_clarification")["correct"]

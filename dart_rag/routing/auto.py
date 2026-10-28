@@ -125,15 +125,17 @@ class AutoAnswerer:
     def gather_wiki(self, d: RouteDecision) -> tuple[list[dict], dict]:
         wiki, pats = self.svc.wiki, self.svc.routes.patterns(d.sections)
         kws = [k for i in d.sections for k in (self.svc.routes.by_id.get(i).keywords if self.svc.routes.by_id.get(i) else [])]
+        nodes = [n for c in d.companies for period in d.periods.get(c["corp_name"], [])
+                 for n in wiki.find_sections(c["corp_name"], period, pats)]
+        # 글자 예산을 페이지 수로 나눈다: 앞 회사의 긴 페이지가 예산을 다 써서 뒤 회사가 잘려 나가지 않게
+        per_page = max(1500, min(self.page_chars, (self.ctx_chars - 200 * len(nodes)) // max(1, len(nodes))))
         items: list[dict] = []
-        for c in d.companies:
-            for period in d.periods.get(c["corp_name"], []):
-                for n in wiki.find_sections(c["corp_name"], period, pats):
-                    text = select_relevant(wiki.page_text(n), d.search_query or "", kws, self.page_chars)
-                    items.append({"id": f"wiki:{n['id'].split(':', 1)[1]}", "text": text,
-                                  "source": f"{n['corp']} {n['report_type']}({n['period']}) · {n['title']}",
-                                  "rcept_no": n.get("rcept_no"), "period": n.get("period"),
-                                  "section": n.get("title"), "kind": "wiki"})
+        for n in nodes:
+            text = select_relevant(wiki.page_text(n), d.search_query or "", kws, per_page)
+            items.append({"id": f"wiki:{n['id'].split(':', 1)[1]}", "text": text,
+                          "source": f"{n['corp']} {n['report_type']}({n['period']}) · {n['title']}",
+                          "rcept_no": n.get("rcept_no"), "period": n.get("period"),
+                          "section": n.get("title"), "kind": "wiki"})
         return items, {}
 
     def gather_search(self, d: RouteDecision, channels: list[str]) -> tuple[list[dict], dict]:
@@ -202,8 +204,11 @@ class AutoAnswerer:
 
         data, usage, t_ans, conv = self._answer(question, items)
         seen = {it["id"]: it for it in items}
-        data, comp = check_and_fix(self.answer_llm, conv, data, seen,
-                                   getattr(self.cfg, "aliases", {}), ANSWER_SCHEMA)
+        try:
+            data, comp = check_and_fix(self.answer_llm, conv, data, seen,
+                                       getattr(self.cfg, "aliases", {}), ANSWER_SCHEMA)
+        except Exception as e:  # noqa: BLE001  비교 검증 실패가 답변을 막지 않게
+            comp = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
         if comp.get("retried"):
             t_ans += comp.get("seconds", 0.0)
             usage = {k: (usage.get(k) or 0) + (comp["usage"].get(k) or 0) for k in set(usage) | set(comp["usage"])

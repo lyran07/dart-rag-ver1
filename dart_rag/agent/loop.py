@@ -117,7 +117,13 @@ class AgentLoop:
                 trace.append({"round": "final(forced)", "llm_sec": round(st.seconds, 2)})
                 final = st.final_text
             data = parse_final_json(final)
-            data, comp = check_and_fix(self.llm, conv, data, session.seen, getattr(cfg, "aliases", {}), ANSWER_SCHEMA)
+            try:
+                data, comp = check_and_fix(self.llm, conv, data, session.seen, getattr(cfg, "aliases", {}),
+                                           ANSWER_SCHEMA)
+            except AgentLLMError:
+                raise
+            except Exception as e:  # noqa: BLE001  비교 검증 실패가 답변을 막지 않게
+                comp = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
             if comp.get("retried"):
                 add_usage(comp["usage"])
                 t_llm += comp.get("seconds", 0.0)

@@ -130,13 +130,18 @@ def claimed(text: str, cue: str) -> list[str]:
     return out
 
 
+ASKS_RANK = r"가장|제일|더\s*(큰|많|높|작|적|낮)|어디|어느\s*(곳|회사)|곳은|회사는|누가"
+
+
 def conclusion_checks(item: dict, text: str) -> dict:
+    """최대·최소: 틀린 회사를 말하면 오답. 말하지 않았을 때는 질문이 순위를 물은 경우에만 오답."""
     res = {}
     many = len(item.get("corps") or []) >= 3
+    asks = bool(re.search(ASKS_RANK, item.get("q", "")))
     for key, cue, pair in (("expect_max", MAX_CUE, PAIR_MAX), ("expect_min", MIN_CUE, PAIR_MIN)):
         if item.get(key):
             claims = claimed(text, cue) or ([] if many else claimed(text, pair))
-            res[key] = bool(claims) and all(c == item[key] for c in claims)
+            res[key] = all(c == item[key] for c in claims) and (bool(claims) or not asks)
     if item.get("expect_direction"):
         pos, ok = 0, True
         for d in item["expect_direction"]:
@@ -169,7 +174,11 @@ def score(item: dict, text: str, status: str) -> dict:
     if item.get("no_answer"):
         return {"correct": status in ("no_evidence", "needs_clarification") or any(h in text for h in NO_ANSWER_HINTS),
                 "conclusion_ok": None}
-    return answer_score(item, text)
+    sc = answer_score(item, text)
+    if status == "needs_clarification":      # 답할 수 있는 질문인데 되묻거나 답을 피함 → 오답
+        sc["correct"] = False
+        sc["clarification"] = True
+    return sc
 
 
 def section_hit(item: dict, sources: list[dict]) -> bool | None:
@@ -341,7 +350,12 @@ def _ask(svc, it, mode, pacer: Pacer | None = None):
             "route": a.plan.get("route") or a.plan.get("mode"), "escalated": a.plan.get("escalated"),
             "rounds": a.plan.get("rounds"), "usd": usage.get("usd"), "sec": round(sec, 2), "llm": a.llm,
             "router": (a.plan.get("decision") or {}).get("router"),
-            "router_fallback": any("규칙 라우터" in n for n in a.plan.get("router_notes") or []),
+            "router_fallback": any(re.search(r"초과|실패|소진", n) for n in a.plan.get("router_notes") or []),
+            "router_skipped": any("생략" in n for n in a.plan.get("router_notes") or []),
+            "errors": {k: a.plan[k] for k in ("auto_error", "agent_error") if a.plan.get(k)}
+                      | ({"comparison": (a.plan.get("comparison") or {}).get("error")}
+                         if (a.plan.get("comparison") or {}).get("error") else {}),
+            "comparison_retried": bool((a.plan.get("comparison") or {}).get("retried")),
             "answer": text}
 
 
@@ -389,9 +403,15 @@ def summarize(mode: str, rows: list[dict]) -> list[str]:
     fmt = sum(1 for r in rows if r.get("format_ok"))
     errs = [r for r in rows if r.get("error")]
     fb = sum(1 for r in rows if r.get("router_fallback"))
+    sk = sum(1 for r in rows if r.get("router_skipped"))
+    cr = sum(1 for r in rows if r.get("comparison_retried"))
+    inner = [r for r in rows if r.get("errors")]
     lines += ["", f"- 형식 준수율 {pct(fmt, len(rows))} · 오류 {len(errs)}건"
-              + (f" · LLM 라우터 대신 규칙 라우터로 처리 {fb}건 (한도·시간 초과)" if mode == "auto" else "")
+              + (f" · 규칙 확정으로 LLM 라우터 생략 {sk}건 · LLM 라우터 실패(한도·시간 초과) {fb}건" if mode == "auto" else "")
+              + (f" · 비교 서술 재작성 {cr}건" if cr else "")
               + (f" · LLM 비용 합계 ${sum(usd):.4f} (질문당 ${sum(usd) / len(usd):.5f})" if usd else ""), ""]
+    if inner:
+        lines += ["내부 오류로 대체 경로를 탄 문항"] + [f"- {r['q']} — {r['errors']}" for r in inner] + [""]
     wrong = [r for r in rows if not r["correct"]]
     if wrong:
         lines += ["틀린 문항"] + [f"- [{r['type']}] {r['q']} — {r.get('error') or r.get('status')}"

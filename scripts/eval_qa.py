@@ -6,7 +6,8 @@
   python scripts/eval_qa.py --retrieval                     검색 Recall@k · MRR, 채널 비교 (dense / dense+bm25)
   python scripts/eval_qa.py --answer auto                   답변 정확도 · 근거 · 형식 · 시간 · 비용
   python scripts/eval_qa.py --answer auto agent rag         모드 비교
-  python scripts/eval_qa.py --rescore eval/results/X.json   저장된 답변을 지금 채점 규칙으로 다시 채점 (0원)
+  python scripts/eval_qa.py --rescore A.json B.json         저장된 답변을 지금 채점 규칙으로 다시 채점·합산 (0원)
+  python scripts/eval_qa.py --answer auto --start 42        42번째 문항부터만 (새로 추가한 문항)
   옵션: --types fact compare (유형 일부만)  --limit 5  -k 5  --workers 3 (답변 평가 동시 실행)
         --rpm 12 (Gemini 라우터 호출을 분당 12회로 제한. 무료 등급 한도가 분당 15회라서)
 
@@ -189,6 +190,8 @@ def pct(n, d):
 
 def load(a) -> list[dict]:
     qs = yaml.safe_load((ROOT / a.file).read_text("utf-8"))
+    if a.start:
+        qs = qs[a.start - 1:]
     if a.types:
         qs = [q for q in qs if q["type"] in a.types]
     return qs[: a.limit] if a.limit else qs
@@ -398,14 +401,20 @@ def summarize(mode: str, rows: list[dict]) -> list[str]:
     return lines
 
 
-def run_rescore(qs, path: str) -> tuple[list[str], dict]:
-    """저장된 답변(.json)을 현재 평가셋·채점 규칙으로 다시 채점 (LLM 호출 없음)."""
-    d = json.loads((ROOT / path).read_text("utf-8")) if not Path(path).is_absolute() else json.loads(Path(path).read_text("utf-8"))
+def run_rescore(qs, paths: list[str]) -> tuple[list[str], dict]:
+    """저장된 답변(.json, 여러 개면 합침)을 현재 평가셋·채점 규칙으로 다시 채점 (LLM 호출 없음).
+    같은 질문이 여러 파일에 있으면 뒤 파일 것을 쓴다."""
     by_q = {it["q"]: it for it in qs}
-    lines, detail = [f"## 다시 채점: {path}", ""], {}
-    for mode, rows in (d.get("answer") or {}).items():
+    merged: dict[str, dict[str, dict]] = defaultdict(dict)
+    for path in paths:
+        f = Path(path) if Path(path).is_absolute() else ROOT / path
+        for mode, rows in (json.loads(f.read_text("utf-8")).get("answer") or {}).items():
+            for r in rows:
+                merged[mode][r["q"]] = r
+    lines, detail = [f"## 다시 채점: {', '.join(paths)}", ""], {}
+    for mode, by in merged.items():
         new = []
-        for r in rows:
+        for r in by.values():
             it = by_q.get(r["q"])
             if it is None or r.get("error"):
                 continue
@@ -427,7 +436,8 @@ def main():
     ap.add_argument("--channels", nargs="*", default=["dense", "dense,bm25"],
                     help="검색 채널 조합 (쉼표 구분). 기본: dense 와 dense,bm25 비교")
     ap.add_argument("--answer", nargs="*", choices=["auto", "agent", "rag"])
-    ap.add_argument("--rescore", help="저장된 답변 결과(.json)를 지금 채점 규칙으로 다시 채점")
+    ap.add_argument("--rescore", nargs="+", help="저장된 답변 결과(.json, 여러 개 가능)를 지금 채점 규칙으로 다시 채점·합산")
+    ap.add_argument("--start", type=int, help="평가셋의 N번째 문항부터 (예: --start 42 → 새로 추가한 문항만)")
     ap.add_argument("--types", nargs="*", choices=TYPES)
     ap.add_argument("--limit", type=int)
     ap.add_argument("-k", type=int, default=5)

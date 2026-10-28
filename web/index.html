@@ -22,8 +22,28 @@ button.sec{background:#fff;color:var(--g);border:1px solid var(--g2)}
 .muted{font-size:12px;color:#999}
 ul{padding-left:18px;margin:6px 0}
 details summary{cursor:pointer;color:var(--g2)}
+nav.tabs{display:flex;gap:4px;margin-left:auto}
+nav.tabs button{background:#fff;color:var(--g);border:1px solid var(--ln)}
+nav.tabs button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.rsec h3{font-size:16px;color:var(--g);margin:0 0 8px;display:flex;gap:8px;align-items:center}
+.rsec p{line-height:1.7;color:#333;margin:6px 0}
+.rsec li{line-height:1.6;color:#333}
+.rsec .lbl{font-size:12px;font-weight:600;color:var(--g2);margin-top:10px}
+.rsec table{border-collapse:collapse;margin:8px 0;font-size:13px;color:#333}
+.rsec th,.rsec td{border:1px solid var(--ln);padding:4px 8px;text-align:right}
+.rsec th:first-child,.rsec td:first-child{text-align:left}
+.rsec th{background:#F3F6F1}
+.rsec sup a{color:var(--g2);text-decoration:none}
+.warnbox{background:#F8EFE9;border-radius:6px;padding:6px 10px;font-size:13px;color:#8A655E;margin-top:8px}
+.prog{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.quote{background:#F7F7F5;border-radius:4px;padding:4px 8px;margin:4px 0;font-size:12px;color:#555}
+pre.wikitext{white-space:pre-wrap;font-size:12px;max-height:320px;overflow:auto;background:#F7F7F5;padding:8px;border-radius:4px}
+.diag{font-size:11px;color:#999;margin-top:8px}
+@media print{header,aside,.noprint,.diag,details{display:none!important}main{display:block;max-width:none}
+ .card{border:0;border-left:0;padding:0 0 12px;break-inside:avoid}}
 </style></head><body>
-<header><h1>국내 기업 공시정보 기반 질의응답</h1><span class="muted">답변은 DART 공시 발췌만을 근거로 생성되며, 출처를 반드시 확인하세요.</span></header>
+<header><h1>국내 기업 공시정보 기반 질의응답</h1><span class="muted">답변은 DART 공시 발췌만을 근거로 생성되며, 출처를 반드시 확인하세요.</span>
+<nav class="tabs noprint"><button id="tab-ask-btn" class="on">질문</button><button id="tab-report-btn">보고서</button></nav></header>
 <main>
 <aside>
  <div class="card"><h2>기업 선택</h2>
@@ -33,7 +53,7 @@ details summary{cursor:pointer;color:var(--g2)}
  </div>
  <div class="card"><h2>기업 Wiki</h2><div id="wiki" class="muted">기업을 선택하면 보고서 목록이 표시됩니다.</div></div>
 </aside>
-<section>
+<section id="tab-ask">
  <div class="card"><h2>질문</h2>
   <textarea id="q" maxlength="500" placeholder="예) 삼성전자 2023년 사업보고서 기준 연결 매출액과 영업이익은?"></textarea>
   <div class="row"><button id="ask">질문하기</button><span id="cnt" class="muted">0 / 500자</span><span id="state" class="muted"></span></div>
@@ -42,6 +62,22 @@ details summary{cursor:pointer;color:var(--g2)}
   <div id="answer" class="answer"></div>
   <h2 style="margin-top:14px">근거 공시</h2><div id="sources"></div>
   <div class="row"><span class="muted">이 답변이 도움이 되었나요?</span><button class="sec" data-r="up">👍</button><button class="sec" data-r="down">👎 수치 오류</button><button class="sec" data-r="down2">👎 기업/기간 오류</button></div>
+ </div>
+</section>
+<section id="tab-report" style="display:none">
+ <div class="card noprint"><h2>기업분석 보고서</h2>
+  <div class="muted">공시 1건을 투자자 관점의 섹션으로 정리합니다. 미리 만들어 둔 보고서는 바로 열리고, 없으면 지금 생성합니다(20초 안팎).</div>
+  <div class="row"><label>기준 공시 <select id="rbase" style="min-width:220px"><option value="">왼쪽에서 기업을 선택하세요</option></select></label></div>
+  <div class="row"><label>비교 공시 <select id="rcmp" style="min-width:220px"></select></label></div>
+  <div class="row"><button id="rgo">보고서 보기</button><span id="rstate" class="muted"></span></div>
+  <div id="rprog" class="prog"></div>
+ </div>
+ <div id="rout" style="display:none">
+  <div class="card"><h2 id="rtitle"></h2><div id="rmeta" class="muted"></div>
+   <div class="warnbox">DART 공시 원문만을 근거로 자동 생성한 초안입니다. 수치는 근거의 원문으로 확인하세요. '해석'과 종합 의견은 공시 내용에서 추론한 것이며 투자 권유가 아닙니다.</div>
+   <div class="row noprint"><button class="sec" id="rmd">마크다운 다운로드</button><button class="sec" id="rprint">인쇄 / PDF 저장</button></div>
+  </div>
+  <div id="rsecs"></div>
  </div>
 </section>
 </main>
@@ -65,4 +101,69 @@ $('#ask').onclick=async()=>{const q=$('#q').value.trim();if(!q)return alert('질
  }catch(err){$('#out').style.display='';$('#status').textContent='오류';$('#status').className='tag warn';$('#answer').textContent=(err.detail&&JSON.stringify(err.detail))||'요청 실패';$('#sources').innerHTML=''}
  finally{$('#state').textContent='';$('#ask').disabled=false}};
 document.querySelectorAll('button[data-r]').forEach(b=>b.onclick=()=>api('/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:lastQ,rating:b.dataset.r==='up'?'up':'down',reason:b.dataset.r==='down'?'wrong_number':b.dataset.r==='down2'?'wrong_company_period':null})}).then(()=>b.textContent='기록됨 ✓'));
+
+// ---------------------------------------------------------------- 탭
+const tabs={ask:['#tab-ask','#tab-ask-btn'],report:['#tab-report','#tab-report-btn']};
+function showTab(k){for(const [n,[sec,btn]] of Object.entries(tabs)){$(sec).style.display=n===k?'':'none';$(btn).classList.toggle('on',n===k)}}
+$('#tab-ask-btn').onclick=()=>showTab('ask');$('#tab-report-btn').onclick=()=>{showTab('report');loadReports()};
+$('#corp').addEventListener('change',()=>loadReports());
+
+// ---------------------------------------------------------------- 보고서
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let reps=[],job=null,timer=null,drawn={};
+async function loadReports(){const c=$('#corp').value;reps=[];
+ if(!c){$('#rbase').innerHTML='<option value="">왼쪽에서 기업을 선택하세요</option>';$('#rcmp').innerHTML='';return}
+ try{const j=await api(`/companies/${encodeURIComponent(c)}/reports`);reps=j.reports;
+  $('#rbase').innerHTML=reps.map(r=>`<option value="${esc(r.period)}">${esc(r.title)}${r.cached?' · 저장됨':''}</option>`).join('');fillCmp()}
+ catch(e){$('#rbase').innerHTML=`<option value="">${esc(e.detail||'공시 없음')}</option>`;$('#rcmp').innerHTML=''}}
+function fillCmp(){const r=reps.find(x=>x.period===$('#rbase').value);if(!r){$('#rcmp').innerHTML='';return}
+ const others=reps.filter(x=>x.period!==r.period);
+ $('#rcmp').innerHTML=`<option value="auto">전년 동기 (${r.default_compare?esc(r.default_compare):'해당 공시 없음'})</option><option value="none">비교 안 함</option>`
+  +others.map(x=>`<option value="${esc(x.period)}">${esc(x.title)}</option>`).join('')}
+$('#rbase').onchange=fillCmp;
+
+const ST={pending:['대기',''],running:['작성 중',''],done:['완료',''],no_evidence:['근거 없음','warn'],error:['오류','warn']};
+function mdTable(md){const lines=md.split('\n').map(l=>l.trim()).filter(Boolean);let h='',rows=[];
+ for(const l of lines){if(l.startsWith('|')){if(/^\|[\s:|-]+\|?$/.test(l))continue;rows.push(l.replace(/^\||\|$/g,'').split('|').map(x=>x.trim()))}else h+=`<div class="muted">${esc(l)}</div>`}
+ if(!rows.length)return h;return h+'<table><thead><tr>'+rows[0].map(c=>`<th>${esc(c)}</th>`).join('')+'</tr></thead><tbody>'
+  +rows.slice(1).map(r=>'<tr>'+r.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>').join('')+'</tbody></table>'}
+function cite(t,sid){return esc(t).replace(/\[(\d+)\]/g,`<sup><a href="#src-${sid}-$1">[$1]</a></sup>`)}
+function secHtml(s){const [lab,cls]=ST[s.status]||[s.status,''];const sid=esc(s.id);
+ let h=`<h3>${esc(s.title)} <span class="tag ${cls}">${lab}</span>${s.kind==='summary'?'<span class="tag warn">해석</span>':''}</h3>`;
+ if(s.status==='pending'||s.status==='running')return h+'<div class="muted">작성 중입니다…</div>';
+ if(s.error)h+=`<div class="warnbox">작성 실패: ${esc(s.error)}</div>`;
+ if(s.conclusion)h+=`<p>${cite(s.conclusion,sid)}</p>`;
+ if(s.table_markdown)h+=mdTable(s.table_markdown);
+ if(s.key_points.length)h+=`<div class="lbl">${s.kind==='summary'?'핵심 사항':'주요 내용 (공시 확인 사항)'}</div><ul>`+s.key_points.map(x=>`<li>${cite(x,sid)}</li>`).join('')+'</ul>';
+ if(s.interpretation.length)h+=`<div class="lbl">${s.kind==='summary'?'점검 포인트':'해석'}</div><ul>`+s.interpretation.map(x=>`<li>${cite(x,sid)}</li>`).join('')+'</ul>';
+ const c=s.check||{},w=[];if(c.n_unverified)w.push(`원문과 대조되지 않은 근거 ${c.n_unverified}건`);
+ if((c.table_unverified_numbers||[]).length)w.push('표에 원문에서 찾지 못한 숫자: '+c.table_unverified_numbers.slice(0,8).join(', '));
+ if(w.length)h+=`<div class="warnbox">⚠ ${esc(w.join(' · '))}</div>`;
+ if(s.sources.length)h+=`<details><summary>근거 ${s.sources.length}건</summary>`+s.sources.map(x=>`<div class="src" id="src-${sid}-${x.n}"><b>[${x.n}]</b> ${esc(x.source)} ${x.verified?'':'<span class="tag warn">미검증</span>'}<div class="quote">${esc(x.quote)}</div>${x.url?`<a target="_blank" href="${esc(x.url)}">DART 원문</a> · `:''}<a href="#" data-w="${esc(x.chunk_id)}">위키 원문 보기</a><pre class="wikitext" style="display:none"></pre></div>`).join('')+'</details>';
+ const d=s.diag||{};const dg=[];
+ if(d.total_sec!=null)dg.push(`${d.total_sec}s`);if(d.n_context!=null)dg.push(`근거 ${d.n_context}개 · ${(d.context_chars||0).toLocaleString()}자`);
+ if(d.pages_trimmed)dg.push(`발췌로 줄인 페이지 ${d.pages_trimmed}`);if(d.dropped_for_budget)dg.push(`글자 예산 초과로 뺀 근거 ${d.dropped_for_budget}`);
+ if((d.periods_without_pages||[]).length)dg.push(`섹션 없는 기간 ${d.periods_without_pages.join(',')}`);
+ if(d.input_tokens!=null)dg.push(`토큰 ${d.input_tokens}/${d.output_tokens}`);
+ if(dg.length)h+=`<div class="diag">진단: ${esc(dg.join(' · '))}</div>`;return h}
+function render(j){job=j;$('#rout').style.display='';$('#rtitle').textContent=`${j.corp} ${j.title}`;
+ $('#rmeta').textContent=`기준: ${j.base_report.title}`+(j.compare_report?` · 비교: ${j.compare_report.title}`:'')
+  +(j.from_cache?` · 저장본 (생성 ${j.generated_sec??'-'}초)`:` · ${j.status==='running'?'생성 중':'생성'} ${j.elapsed}초`)
+  +(j.usage&&j.usage.usd!=null&&!j.from_cache?` · $${j.usage.usd}`:'');
+ $('#rprog').innerHTML=j.sections.map(s=>{const [lab,cls]=ST[s.status]||[s.status,''];return `<span class="tag ${cls}">${esc(s.title)} · ${lab}</span>`}).join('');
+ for(const s of j.sections){let el=document.getElementById('rs-'+s.id);
+  if(!el){el=document.createElement('div');el.className='card rsec';el.id='rs-'+s.id;$('#rsecs').append(el)}
+  if(drawn[s.id]!==s.status){el.innerHTML=secHtml(s);drawn[s.id]=s.status}}
+ $('#rstate').textContent=j.status==='running'?`생성 중… ${j.progress.done}/${j.progress.total} 섹션`:(j.status==='error'?`오류: ${j.error}`:'');}
+$('#rsecs').addEventListener('click',async ev=>{const a=ev.target.closest('a[data-w]');if(!a)return;ev.preventDefault();
+ const pre=a.parentElement.querySelector('pre');if(pre.style.display===''){pre.style.display='none';return}
+ try{const w=await api('/wiki/sections/'+encodeURIComponent(a.dataset.w));pre.textContent=w.text}catch(e){pre.textContent=e.detail||'원문을 불러오지 못했습니다.'}pre.style.display=''});
+$('#rgo').onclick=async()=>{const c=$('#corp').value,p=$('#rbase').value;if(!c||!p)return alert('기업과 기준 공시를 선택하세요.');
+ clearInterval(timer);drawn={};$('#rsecs').innerHTML='';$('#rgo').disabled=true;$('#rstate').textContent='요청 중…';
+ try{let j=await api('/report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({corp:c,period:p,compare_period:$('#rcmp').value})});render(j);
+  if(j.status==='running')timer=setInterval(async()=>{try{j=await api('/report/'+j.id);render(j);if(j.status!=='running'){clearInterval(timer);$('#rgo').disabled=false;loadReports()}}catch(e){clearInterval(timer);$('#rstate').textContent=e.detail||'조회 실패';$('#rgo').disabled=false}},1500);
+  else $('#rgo').disabled=false}
+ catch(e){$('#rstate').textContent=(e.detail&&(typeof e.detail==='string'?e.detail:JSON.stringify(e.detail)))||'요청 실패';$('#rgo').disabled=false}};
+$('#rmd').onclick=()=>{if(job)location.href='/report/'+job.id+'/markdown'};
+$('#rprint').onclick=()=>{document.querySelectorAll('#rsecs details').forEach(d=>d.open=false);window.print()};
 </script></body></html>

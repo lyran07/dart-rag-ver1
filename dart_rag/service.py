@@ -69,6 +69,12 @@ class RAGService:
         cfg = self.agent_config
         return AgentLoop(make_agent_llm(cfg), lambda: ToolSession(self, cfg), cfg)
 
+    @cached_property
+    def report(self):
+        """기업분석 보고서 생성기 (공시 1건 기준, data/reports/ 저장본 우선)."""
+        from .report import ReportBuilder
+        return ReportBuilder(self)
+
     # ------------------------------------------------------------------ auto 모드 (라우팅)
     @cached_property
     def filings(self):

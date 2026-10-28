@@ -7,6 +7,11 @@ GET  /companies              검색 가능한 기업 목록
 GET  /companies/{corp}/wiki  기업 Wiki 허브 (보고서 목록) — wiki 단계 실행 후
 GET  /filings/{rcept_no}/wiki 보고서 섹션 페이지 목록
 GET  /evidence/{chunk_id}    근거 청크 본문·메타 (답변 출처 확인용)
+GET  /companies/{corp}/reports  보고서 생성 가능한 공시 목록 (+ 전년 동기 비교 기간, 저장본 여부)
+POST /report                 기업분석 보고서 생성 시작 (저장본이 있으면 즉시 완료 상태로 반환)
+GET  /report/{id}            진행 상황 · 완성된 섹션
+GET  /report/{id}/markdown   마크다운 다운로드
+GET  /wiki/sections/{id}     위키 섹션 원문 (보고서 근거 확인용)
 
 보완 사항: 질문 길이 검증(1~500자), filters 허용 키 제한, strict 옵션, 응답 상태 코드 구분.
 """
@@ -21,7 +26,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -33,13 +38,14 @@ WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 # ---- 서비스 보호: 접근 토큰(선택) + IP 별 분당 요청 제한 (LLM 호출 API 에만 적용)
 ACCESS_TOKEN = os.environ.get("API_ACCESS_TOKEN")          # 설정 시 X-Access-Token 헤더 또는 ?token= 필요
 RATE_PER_MIN = int(os.environ.get("ASK_RATE_PER_MIN", "6"))
+REPORT_RATE_PER_MIN = int(os.environ.get("REPORT_RATE_PER_MIN", "3"))   # 새로 생성하는 경우만 (저장본 열기는 제외)
 _hits: dict[str, deque] = defaultdict(deque)
 
 
 @app.middleware("http")
 async def _guard(request: Request, call_next):
     path = request.url.path
-    if path in ("/ask", "/search", "/feedback"):
+    if path in ("/ask", "/search", "/feedback") or (path == "/report" and request.method == "POST"):
         if ACCESS_TOKEN and request.headers.get("x-access-token", request.query_params.get("token")) != ACCESS_TOKEN:
             from fastapi.responses import JSONResponse
             return JSONResponse({"detail": "접근 토큰이 필요합니다."}, status_code=401)
@@ -192,3 +198,96 @@ def feedback(f: Feedback):
     with path.open("a", encoding="utf-8") as fp:
         fp.write(json.dumps({**f.model_dump(), "ts": time.time()}, ensure_ascii=False) + "\n")
     return {"ok": True}
+
+
+# ---------------------------------------------------------------- 보고서
+class ReportReq(BaseModel):
+    corp: str = Field(..., min_length=1, max_length=50)
+    period: str = Field(..., pattern=r"^\d{4}\.\d{2}$")
+    compare_period: str | None = Field("auto", description="YYYY.MM | auto(전년 동기) | none")
+    template: str = "company_analysis"
+
+    @field_validator("compare_period")
+    @classmethod
+    def _cmp(cls, v: str | None) -> str | None:
+        import re
+        if v in (None, "", "none"):
+            return None
+        if v == "auto":
+            return v
+        if not re.fullmatch(r"\d{4}\.\d{2}", v):
+            raise ValueError("compare_period 는 YYYY.MM, auto, none 중 하나입니다.")
+        return v
+
+
+@app.get("/report/templates")
+def report_templates():
+    return {"templates": [t.to_dict() for t in service().report.templates.values()]}
+
+
+@app.get("/companies/{corp}/reports")
+def company_reports(corp: str, template: str = "company_analysis"):
+    rb = service().report
+    reps = rb.reports_of(corp)
+    if not reps:
+        raise HTTPException(404, "위키에 보고서가 없는 기업입니다.")
+    out = []
+    for r in reps:
+        cmp = rb.default_compare(corp, r["period"])
+        out.append({"period": r["period"], "title": r["title"], "report_type": r.get("report_type"),
+                    "rcept_no": r.get("rcept_no"), "default_compare": cmp,
+                    "cached": rb.has_cached(corp, r["period"], cmp, template) if template in rb.templates else False})
+    return {"corp": corp, "reports": out}
+
+
+@app.post("/report")
+def report_start(q: ReportReq, request: Request):
+    rb = service().report
+    cmp = rb.default_compare(q.corp, q.period) if q.compare_period == "auto" else q.compare_period
+    try:
+        if not rb.has_cached(q.corp, q.period, cmp, q.template):   # 새로 만드는 경우만 속도 제한
+            ip = request.client.host if request.client else "?"
+            now, hq = time.time(), _hits["report:" + ip]
+            while hq and now - hq[0] > 60:
+                hq.popleft()
+            if len(hq) >= REPORT_RATE_PER_MIN:
+                raise HTTPException(429, f"보고서 생성은 분당 {REPORT_RATE_PER_MIN}회까지입니다.",
+                                    headers={"Retry-After": "60"})
+            hq.append(now)
+        job_id = rb.start(q.corp, q.period, cmp, q.template)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return rb.get(job_id).to_dict()
+
+
+@app.get("/report/{job_id}")
+def report_get(job_id: str):
+    job = service().report.get(job_id)
+    if job is None:
+        raise HTTPException(404, "보고서 작업을 찾을 수 없습니다 (서버가 재시작되었을 수 있습니다).")
+    return job.to_dict()
+
+
+@app.get("/report/{job_id}/markdown")
+def report_markdown(job_id: str):
+    from urllib.parse import quote
+
+    from .report import to_markdown
+    job = service().report.get(job_id)
+    if job is None:
+        raise HTTPException(404, "보고서 작업을 찾을 수 없습니다.")
+    name = quote(f"{job.corp}_{job.period}_{job.title}.md")
+    return Response(to_markdown(job), media_type="text/markdown; charset=utf-8",
+                    headers={"Content-Disposition": f"attachment; filename*=UTF-8''{name}"})
+
+
+@app.get("/wiki/sections/{section_id}")
+def wiki_section(section_id: str):
+    sid = section_id.removeprefix("wiki:")
+    w = service().wiki
+    n = w.index["nodes"].get(f"section:{sid}")
+    if not n:
+        raise HTTPException(404, "위키 섹션을 찾을 수 없습니다.")
+    return {"id": sid, "title": n.get("title"), "corp": n.get("corp"), "period": n.get("period"),
+            "rcept_no": n.get("rcept_no"), "text": w.page_text(n),
+            "url": f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={n.get('rcept_no')}" if n.get("rcept_no") else None}

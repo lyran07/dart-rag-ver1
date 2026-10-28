@@ -42,7 +42,7 @@ python -m dart_rag chat                      # 대화형
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                                    # 50개 (PostgreSQL 전용 3개는 건너뜀)
+pytest -q                                    # 55개 (PostgreSQL 전용 3개는 건너뜀)
 
 $env:EMBED_PROVIDER="hashing"; $env:DART_DATA_ROOT="data_sample"
 python -m dart_rag sample                    # 합성 샘플로 전체 파이프라인 (키 불필요)
@@ -57,7 +57,7 @@ powershell -ExecutionPolicy Bypass -File scripts\fetch_dart.ps1 -Limit 6     # �
 
 # 단계별로
 python -m dart_rag discover --corp-file corp_lists/team1.txt --from 20250101 --to 20261231
-python -m dart_rag run --latest-only         # fetch → parse → chunk → embed → index → wiki
+python -m dart_rag run --latest-only         # fetch → parse → chunk → embed → index → wiki → report
 python -m dart_rag status                    # 진행 상황·용량
 ```
 
@@ -72,6 +72,23 @@ python -m dart_rag status                    # 진행 상황·용량
 | `rag` | 검색 1회 + LLM 1회 (auto·agent 실패 시 대체 경로) | `--mode rag` |
 
 `python -m dart_rag route "질문"` 으로 어떤 경로가 선택되는지만 확인할 수 있습니다.
+
+## 4-1. 기업분석 보고서
+
+공시 1건(선택적으로 전년 동기 공시와 비교)을 투자자 관점의 섹션으로 정리합니다.
+섹션: 기업 개요 · 실적·재무 요약 · 매출 및 수주 · 원재료·생산설비 · 리스크 요인 · 경영진 시각 · 주주·배당 · 종합 의견 (`config/report_templates.yaml`)
+
+- **파이프라인**: `run` 의 마지막 `report` 단계가 공시마다 보고서를 만들어 `data/reports/` 에 저장합니다 (전년 동기 공시가 있으면 비교 포함). `OPENAI_API_KEY` 필요.
+- **웹**: `보고서` 탭에서 기업·공시를 고르면 저장본은 즉시, 없으면 생성하면서 섹션별로 보여줍니다.
+- **CLI**: 한 건만 만들어 확인
+
+```powershell
+python -m dart_rag report SK하이닉스 2026.06 --compare auto --out report.md   # auto: 전년 동기 / none / 2025.06
+python -m dart_rag run --stages report --latest-only                          # 기존 공시 전부 보고서 생성
+```
+
+섹션마다 위키 페이지를 읽고 GPT-6 Luna 를 1회 호출합니다 (섹션 병렬, 종합 의견은 마지막). 인용 숫자와 표 숫자를 원문과 대조해 불일치를 표시하고, 근거 수·잘린 페이지·시간·토큰을 섹션별 진단으로 남깁니다.
+프롬프트나 템플릿을 바꾸면 버전이 바뀌어 저장본 대신 새로 생성합니다.
 
 ## 5. 주요 설정
 
@@ -93,6 +110,7 @@ python -m dart_rag status                    # 진행 상황·용량
 | `config/wiki_routes.yaml` | 질문 주제 → 위키 섹션 연결표 (20개) |
 | `config/lexicon.yaml` | 동의어 사전 (BM25 검색 보강) |
 | `config/providers.yaml` | rag 모드 LLM 목록 |
+| `config/report_templates.yaml` | 보고서 섹션 구성·지시문·글자 예산 |
 
 ## 6. 폴더
 
@@ -107,6 +125,7 @@ dart_rag/
   routing/     router.py resolve.py routes.py auto.py           auto 모드
   agent/       tools.py loop.py prompts.py llm.py config.py     tool calling 에이전트
   generation/  answerer.py      llm/ router.py                   rag 모드
+  report/      builder.py templates.py                          기업분석 보고서
 config/  corp_lists/  scripts/  tests/  eval/  web/index.html
 data/    (저장소 미포함) raw · parsed · chunks · emb · index · catalog.db · docstore.db · wiki
 ```

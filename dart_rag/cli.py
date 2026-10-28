@@ -9,6 +9,7 @@
 
 질의
   ask "질문"   chat   search "질문"   health
+  report SK하이닉스 2026.06 [--compare 2025.06|auto|none] [--out report.md]   기업분석 보고서
   toc <rcept_no>
 """
 from __future__ import annotations
@@ -96,7 +97,9 @@ def cmd_status(a):
 def cmd_sample(a):
     a.source, a.corp, a.corp_file, a.from_, a.to, a.skip_amend = "sample", [], None, "", "", False
     cmd_discover(a)
-    a.stages, a.latest_only, a.limit, a.until, a.max_minutes, a.stop_margin, a.force = None, False, None, None, None, 0, False
+    # 보고서(report) 단계는 LLM 키가 필요해서 샘플 실행에서는 뺀다
+    a.stages = "fetch,parse,chunk,embed,index,wiki"
+    a.latest_only, a.limit, a.until, a.max_minutes, a.stop_margin, a.force = False, None, None, None, 0, False
     a.rcept = a.period = None
     cmd_run(a)
 
@@ -239,6 +242,33 @@ def cmd_chat(a):
         _print_answer(svc.ask(q))
 
 
+def cmd_report(a):
+    """보고서 1건 생성 (저장본이 있으면 그대로). 섹션별 진단을 출력하고 마크다운을 저장한다."""
+    from .report import to_markdown
+    svc = _service(a)
+    rb = svc.report
+    compare = None if a.compare == "none" else (rb.default_compare(a.corp, a.period) if a.compare == "auto"
+                                                else a.compare)
+    print(f"[report] {a.corp} {a.period}" + (f" vs {compare}" if compare else " (비교 없음)") + " 생성 중…")
+    job = rb.run(a.corp, a.period, compare, a.template, use_cache=not a.no_cache)
+    print(f"상태 {job.status} · {'저장본 사용' if job.from_cache else f'생성 {job.generated_sec}s'}"
+          f" · 토큰 입력 {job.usage.get('input_tokens')} 출력 {job.usage.get('output_tokens')}"
+          f" · 비용 ${job.usage.get('usd')}")
+    for s in job.sections:
+        d, c = s.diag, s.check
+        print(f"  {s.title:10s} {s.status:11s} {d.get('total_sec', 0):5.1f}s 근거 {d.get('n_context', '-')}"
+              f" ({d.get('context_chars', '-')}자, 잘린 페이지 {d.get('pages_trimmed', '-')})"
+              f" 미검증 {c.get('n_unverified', 0)} 표숫자불일치 {len(c.get('table_unverified_numbers') or [])}"
+              + (f" 오류 {s.error}" if s.error else ""))
+    md = to_markdown(job)
+    if a.out:
+        Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.out).write_text(md, "utf-8")
+        print(f"저장: {a.out}")
+    else:
+        print("\n" + md)
+
+
 def cmd_health(a):
     print(json.dumps(_service(a).health(), ensure_ascii=False, indent=1))
 
@@ -309,6 +339,14 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--rules-only", action="store_true", help="규칙 라우터만 (0원)")
     r.add_argument("--out", help="결과 JSONL 저장 경로")
     r.set_defaults(fn=cmd_route)
+    rp = sp.add_parser("report", parents=[common], help="기업분석 보고서 1건 생성 (공시 1건 기준)")
+    rp.add_argument("corp", help="DART 등록명 (예: SK하이닉스)")
+    rp.add_argument("period", help="기준 보고서 기간 (예: 2026.06)")
+    rp.add_argument("--compare", default="auto", help="비교 기간 (예: 2025.06) | auto: 전년 동기 | none")
+    rp.add_argument("--template", default="company_analysis")
+    rp.add_argument("--out", help="마크다운 저장 경로")
+    rp.add_argument("--no-cache", action="store_true", help="저장본이 있어도 새로 생성")
+    rp.set_defaults(fn=cmd_report)
     t = sp.add_parser("toc", parents=[common])
     t.add_argument("rcept_no")
     t.add_argument("--level", type=int, default=2)

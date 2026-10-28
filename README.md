@@ -42,7 +42,7 @@ python -m dart_rag chat                      # 대화형
 
 ```powershell
 pip install -r requirements-dev.txt
-pytest -q                                    # 55개 (PostgreSQL 전용 3개는 건너뜀)
+pytest -q                                    # 72개 (PostgreSQL 전용 3개는 건너뜀)
 
 $env:EMBED_PROVIDER="hashing"; $env:DART_DATA_ROOT="data_sample"
 python -m dart_rag sample                    # 합성 샘플로 전체 파이프라인 (키 불필요)
@@ -90,6 +90,23 @@ python -m dart_rag run --stages report --latest-only                          # 
 
 섹션마다 위키 페이지를 읽고 GPT-6 Luna 를 1회 호출합니다 (섹션 병렬, 종합 의견은 마지막). 인용 숫자와 표 숫자를 원문과 대조해 불일치를 표시하고, 근거 수·잘린 페이지·시간·토큰을 섹션별 진단으로 남깁니다.
 프롬프트나 템플릿을 바꾸면 버전이 바뀌어 저장본 대신 새로 생성합니다.
+
+## 4-2. 성능 평가
+
+`eval/qa_eval.yaml` (56문항, 정답은 위키 원문에서 확인한 값)으로 검색·라우터·답변을 측정합니다. 결과는 `eval/results/`.
+
+```powershell
+python scripts/eval_qa.py --check                     # 정답이 원문에 있는지 검사 (0원)
+python scripts/eval_qa.py --route rules gemini        # 경로·회사·기간 인식 (약 4분, Gemini 무료 등급 속도 제한 적용)
+python scripts/eval_qa.py --retrieval                 # 검색 Recall@5·MRR, dense vs dense+BM25 (거의 0원)
+python scripts/eval_qa.py --answer auto               # 답변 정확도·결론·근거·시간·비용 (약 6분, 60원 안팎)
+python scripts/eval_qa.py --answer auto --types compare --label test   # 유형 일부만
+python scripts/eval_qa.py --answer auto --q "직원 수"                   # 질문 문구로 골라서
+python scripts/eval_qa.py --rescore eval/results/A.json               # 저장된 답변을 다시 채점 (0원)
+```
+
+현재 결과 (auto, 56문항): 답변 정확도 98%, 결론 정확도 95%, 응답 중앙값 4.4초, 질문당 약 1원.
+BM25 결합으로 검색 성공률 58% → 78% (dense 단독 대비).
 
 ## 5. 주요 설정
 

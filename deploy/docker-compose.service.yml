@@ -1,0 +1,28 @@
+# 서비스 배포: postgres + qdrant + api(웹 화면 포함) + caddy(HTTPS)
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.service.yml up -d --build
+#   .env: GROQ_API_KEY=..., DART_API_KEY=..., SERVICE_DOMAIN=example.com, API_ACCESS_TOKEN=테스터공용토큰
+services:
+  api:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      DATABASE_URL: postgresql://dart:dart@postgres:5432/dart
+      QDRANT_URL: http://qdrant:6333
+      EMBED_PROVIDER: ${EMBED_PROVIDER:-bge-m3-onnx}
+    volumes:
+      - ../data:/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      qdrant: { condition: service_started }
+    expose: ["8080"]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: { SERVICE_DOMAIN: "${SERVICE_DOMAIN:-localhost}" }
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+volumes:
+  caddy_data:

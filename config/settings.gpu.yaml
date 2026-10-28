@@ -1,0 +1,20 @@
+# GPU 대여 서버용 (RTX 4090, 디스크 300GiB 임시 + 스토리지 2TB 영구)
+# DART_DATA_ROOT 환경변수로 2TB 스토리지 경로를 지정하는 것을 권장 (scripts/gpu_session.sh 가 설정)
+
+storage:
+  root: /mnt/storage/dart       # ← 2TB 영구 스토리지 마운트 경로로 변경
+  scratch: /workspace/scratch   # ← 300GiB 로컬 디스크 (반납 시 삭제돼도 되는 것만)
+
+embedding:
+  provider: bge-m3
+  device: cuda
+  batch_size: 64
+  doc_max_len: 1024
+  use_sparse: true
+
+index:
+  backend: qdrant
+  qdrant_url: null
+
+rerank:
+  mode: auto

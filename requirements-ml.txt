@@ -1,0 +1,8 @@
+# 로컬 임베딩/리랭커 (bge-m3, e5, bge-reranker-v2-m3)
+# 노트북(CPU): torch CPU 빌드를 먼저 설치하면 CUDA 버전보다 3~4GB 작다
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+# GPU 서버: pip install torch  (CUDA 빌드)
+torch>=2.2
+sentence-transformers>=3.0
+FlagEmbedding>=1.2      # bge-m3 dense+sparse 동시 추출, reranker
+# kiwipiepy>=0.17       # SPARSE_TOKENIZER=kiwi 사용 시

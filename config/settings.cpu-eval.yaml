@@ -1,0 +1,13 @@
+# 노트북/CPU 평가용: bge-m3 ONNX int8 (torch 불필요), 재무제표 주석 표는 임베딩 제외
+embedding:
+  provider: bge-m3-onnx
+  doc_max_len: 512          # 청크 평균 ~390토큰, 512 초과 거의 없음. 1024 는 RAM 4GB 에서 OOM
+  batch_size: 8
+  skip_sections: [주석]
+docstore:
+  backend: sqlite
+index:
+  backend: qdrant
+  quantization: none
+rerank:
+  mode: off

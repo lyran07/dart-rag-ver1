@@ -1,0 +1,54 @@
+# 기본 설정 (노트북 CPU 기준). 환경변수가 이 값을 덮어쓴다 (.env.example 참고).
+# GPU 서버용은 config/settings.gpu.yaml
+
+storage:
+  root: data                  # 영구 저장소 (원문·청크·임베딩·catalog.db)
+  scratch: data/_scratch
+
+chunking:
+  target_chars: 900
+  max_chars: 1400
+  overlap_paras: 1
+  table_rows_per_chunk: 12
+  max_cols: 10
+  table_chars: 1400
+
+embedding:
+  provider: openai            # openai | bge-m3 | bge-m3-onnx | e5 | hashing
+  device: auto                # GPU 있으면 cuda(fp16), 없으면 cpu
+  doc_max_len: 1024
+  query_max_len: 128
+  embed_kinds: [text, table_kv]   # table(마크다운)은 DocStore 에만 저장
+  use_sparse: true
+
+sparse:
+  tokenizer: regex            # regex | kiwi (pip install kiwipiepy)
+
+docstore:                     # 청크 본문·메타 (관계형 DB)
+  backend: sqlite             # sqlite | postgres (DB 설치 없이 노트북 단독 실행·테스트)
+  dsn: null                   # null → 환경변수 DATABASE_URL → postgresql://dart:dart@localhost:5432/dart
+  schema: public
+
+index:
+  backend: memory             # memory | qdrant
+  qdrant_url: null            # null → 로컬 파일 모드. 서빙 시 QDRANT_URL=http://localhost:6333 (docker compose)
+  collection_prefix: dart_chunks
+  quantization: int8
+  on_disk: true
+
+retrieval:
+  candidates: 40
+  top_k: 8
+  latest_only: true
+  channels: [dense, m3, bm25]
+  prefetch_limit: 50
+
+rerank:
+  mode: auto                  # auto: GPU면 켬 / CPU면 cpu_enabled 따름
+  cpu_enabled: false          # CPU 에서도 켜려면 true (후보 15개, 질문당 +1~2초)
+  model: BAAI/bge-reranker-v2-m3
+
+generation:
+  per_chunk_chars: 1800
+  max_ctx_chars: 9000
+  providers_file: config/providers.yaml

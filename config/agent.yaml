@@ -1,0 +1,62 @@
+# Tool-calling 에이전트 설정 (dart_rag/agent). 환경변수로 덮어쓰기:
+#   ASK_MODE=auto|agent|rag  AGENT_BACKEND=responses|chat  AGENT_MODEL=...  AGENT_REASONING=none|low|medium
+#   ROUTER=gemini|luna|rules
+
+default_mode: auto         # CLI ask · API /ask 의 기본 모드 (auto | agent | rag)
+backend: responses         # responses: OpenAI Responses API (GPT-6 Luna)
+                           # chat: OpenAI 호환 Chat Completions tool calling (Gemini 등, 실험적)
+reasoning: low             # Luna 추론 강도. none | low | medium — 평가 세트로 조정
+
+backends:
+  responses:
+    api_key_env: OPENAI_API_KEY
+    model: gpt-6-luna
+    prices: {input: 0.10, cached_input: 0.01, output: 0.50}   # USD / 1M tokens (2026-10 확인)
+  chat:
+    api_key_env: GEMINI_API_KEY
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    model: gemini-3.5-flash-lite
+    prices: null            # 모르면 null → 비용은 기록하지 않고 토큰만 기록
+
+# 루프 제한
+max_rounds: 4              # tool 호출 라운드 상한. 넘으면 tool 없이 최종 답변 강제
+deadline_sec: 45           # 질문당 전체 시간 상한 (검색 1회에 질의 임베딩 ~수 초 포함)
+llm_timeout_sec: 25        # LLM 1회 호출 타임아웃
+llm_max_retries: 2         # 429·5xx·타임아웃 재시도 횟수
+tool_timeout_sec: 20       # tool 1개 실행 타임아웃
+max_output_tokens: 2000
+
+# tool 결과 크기 (LLM 입력 토큰 = 비용·속도)
+search_k: 6
+result_chars: 1200         # 검색 결과 청크 1개당
+section_chars: 6000        # get_section 1회 (offset 으로 이어 읽기)
+tool_output_chars: 9000    # tool 1회 출력 상한
+
+fallback: rag              # 에이전트 실패 시: rag (기존 1회 호출 방식) | none
+usage_log: data/llm_usage.jsonl
+
+# 회사 별칭 → DART 등록명 (카탈로그에 있는 회사만 의미 있음)
+aliases:
+  하이닉스: SK하이닉스
+  하닉: SK하이닉스
+  sk하닉: SK하이닉스
+  현대차: 현대자동차
+  현차: 현대자동차
+  삼전: 삼성전자
+  삼성: 삼성전자            # 보유 기업이 3곳뿐이라 안전. 삼성 계열사를 추가하면 지울 것
+
+# auto 모드: LLM 라우터가 질문마다 경로를 고른다 → wiki | hybrid | vector | agent
+#   wiki   : 회사·기간·섹션 메타데이터로 위키 페이지 직행 (검색·임베딩 없음) → LLM 답변 1회
+#   hybrid : dense + BM25 검색 → LLM 답변 1회
+#   vector : dense 검색만 (의미·관계 질문) → LLM 답변 1회
+#   agent  : tool calling 에이전트 (복합·단계적 조사)
+auto:
+  router: gemini             # gemini (chat 백엔드) | luna (responses 백엔드, reasoning none) | rules (LLM 없음)
+  router_timeout_sec: 6      # 라우터가 이 시간 안에 답하지 않으면 규칙 라우터 결과로 진행
+  answer_backend: responses  # 단일 답변 LLM (responses = Luna)
+  answer_reasoning: none     # 단일 답변은 속도 우선
+  answer_max_output_tokens: 1200
+  escalate_to_agent: true    # 단일 답변이 근거 부족이면 에이전트로 전환
+  wiki_page_chars: 8000      # 위키 페이지 1개당 LLM 에 넣는 최대 글자
+  context_chars: 16000       # 단일 답변 근거 총량 상한
+  search_k: 8

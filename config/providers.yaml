@@ -1,0 +1,38 @@
+# LLM 제공자 설정. OpenAI 호환 Chat Completions API 는 base_url + model 만 바꾸면 된다.
+#
+# order: 앞에서부터 "사용 가능한" 제공자를 시도하고, 실패(속도 제한·서버 오류·연결 실패)하면 다음으로 넘어간다.
+#        환경변수 LLM_ORDER=gemini,openai 로 덮어쓸 수 있다.
+# 사용 가능 조건: api_key_env 에 해당하는 환경변수가 있을 것 (로컬 서버는 enabled_env 가 설정됐을 때만)
+# 모델 이름은 각 서비스 콘솔에서 현재 제공 모델을 확인해 바꾸세요 (model_env 로도 덮어쓰기 가능).
+
+order: [gemini, gemini_lite, openai]
+
+defaults:
+  temperature: 0
+  max_tokens: 2000
+  timeout: 20             # 초. 응답 없는 제공자에서 오래 기다리지 않고 다음으로
+  retry_on_429: 1         # 같은 제공자에서 429 시 재시도 횟수 (그 다음엔 다음 제공자로)
+  retry_wait: 3           # 초
+  max_ctx_chars: 16000    # 컨텍스트 글자 예산 (제공자별로 덮어쓰기)
+
+providers:
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_env: GEMINI_API_KEY
+    model: gemini-flash-latest
+    model_env: GEMINI_MODEL
+    max_ctx_chars: 24000
+
+  # gemini 가 과부하(503)·한도 초과일 때 같은 키로 더 가벼운 모델로 폴백
+  gemini_lite:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_env: GEMINI_API_KEY
+    model: gemini-3.5-flash-lite
+    model_env: GEMINI_LITE_MODEL
+    max_ctx_chars: 24000
+
+  openai:
+    api_key_env: OPENAI_API_KEY
+    model: gpt-4o-mini
+    model_env: LLM_MODEL
+    max_ctx_chars: 24000

@@ -1,0 +1,31 @@
+# 서빙 머신용: PostgreSQL(청크 본문·메타) + Qdrant(벡터 검색)
+#   docker compose up -d
+#   .env: DATABASE_URL=postgresql://dart:dart@localhost:5432/dart , QDRANT_URL=http://localhost:6333
+# 데이터는 ./volumes 아래에 남는다 (컨테이너를 지워도 유지).
+# GPU 대여 서버에는 필요 없다 (embed 까지만 하고, index 단계는 이 머신에서 실행).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dart
+      POSTGRES_PASSWORD: dart          # 외부에 포트를 열 경우 반드시 변경
+      POSTGRES_DB: dart
+    ports:
+      - "127.0.0.1:5432:5432"          # 로컬에서만 접속 (외부 공개 X)
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "work_mem=16MB"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dart -d dart"]
+      interval: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:latest          # 운영 시 특정 버전 태그로 고정 권장
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6333:6333"
+    volumes:
+      - ./volumes/qdrant:/qdrant/storage

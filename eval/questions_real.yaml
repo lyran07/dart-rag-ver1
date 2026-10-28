@@ -1,0 +1,102 @@
+# 실데이터 평가셋: 삼성전자·SK하이닉스 사업보고서(2023.12) + 3분기보고서(2024.09)
+# expect: 조건 그룹 목록. 모든 그룹이 상위 k 안에 있어야 성공. section 은 하나라도 포함되면 됨.
+# 유형: fact(원문 어휘) / synonym(동의어) / concept(개념→항목) / trend(여러 기간) / compare(여러 회사)
+#       outlook(회사가 밝힌 전망) / cause(원인·영향 서술)
+
+# ---------------- fact
+- q: 삼성전자 2023년 사업보고서 기준 연결 매출액과 영업이익은?
+  type: fact
+  expect: [{section: [요약재무, 연결재무제표], corp: 삼성전자, period: "2023.12"}]
+- q: SK하이닉스 2023년 보통주 1주당 배당금은?
+  type: fact
+  expect: [{section: [배당], corp: SK하이닉스}]
+- q: 삼성전자 2023년 말 직원 수는?
+  type: fact
+  expect: [{section: [임원 및 직원], corp: 삼성전자, period: "2023.12"}]
+- q: SK하이닉스 최대주주는 누구야?
+  type: fact
+  expect: [{section: [주주에 관한], corp: SK하이닉스}]
+
+# ---------------- synonym (질문 단어 ≠ 원문 단어)
+- q: 삼성전자 2023년 영업손익 규모는?
+  type: synonym
+  expect: [{section: [요약재무, 경영진단, 연결재무제표], corp: 삼성전자}]
+- q: SK하이닉스 2023년 빚은 얼마나 돼?
+  type: synonym
+  expect: [{section: [요약재무, 연결재무제표, 재무제표, 경영진단], corp: SK하이닉스}]
+- q: 삼성전자 2023년 R&D에 얼마 썼어?
+  type: synonym
+  expect: [{section: [연구개발], corp: 삼성전자}]
+- q: SK하이닉스 2023년 신기술 개발에 들인 돈은?
+  type: synonym
+  expect: [{section: [연구개발], corp: SK하이닉스}]
+
+# ---------------- concept (개념 → 공시 항목)
+- q: 삼성전자 2023년 인건비 부담은 어느 정도야?
+  type: concept
+  expect: [{section: [임원 및 직원, 보수], corp: 삼성전자}]
+- q: SK하이닉스 2023년 현금 창출력은 어때?
+  type: concept
+  expect: [{section: [연결재무제표, 경영진단, 요약재무], corp: SK하이닉스}]
+- q: 삼성전자 주주환원 정책은?
+  type: concept
+  expect: [{section: [배당], corp: 삼성전자}]
+- q: SK하이닉스 공장은 어디에 있어?
+  type: concept
+  expect: [{section: [원재료 및 생산설비], corp: SK하이닉스}]
+
+# ---------------- trend (두 기간이 모두 나와야 성공)
+- q: 삼성전자 2023년부터 2024년 3분기까지 매출 추이는?
+  type: trend
+  expect:
+    - {section: [요약재무, 매출, 연결재무제표], corp: 삼성전자, period: "2023.12"}
+    - {section: [요약재무, 매출, 연결재무제표], corp: 삼성전자, period: "2024.09"}
+- q: SK하이닉스 2023년 대비 2024년 영업이익 변화는?
+  type: trend
+  expect:
+    - {section: [요약재무, 경영진단, 연결재무제표], corp: SK하이닉스, period: "2023.12"}
+    - {section: [요약재무, 연결재무제표, 매출], corp: SK하이닉스, period: "2024.09"}
+- q: 삼성전자 DS부문 실적이 2023년과 2024년에 어떻게 달라졌어?
+  type: trend
+  expect:
+    - {section: [매출, 경영진단, 사업의 개요], corp: 삼성전자, period: "2023.12"}
+    - {section: [매출, 사업의 개요, 기타 참고사항], corp: 삼성전자, period: "2024.09"}
+
+# ---------------- compare (두 회사가 모두 나와야 성공)
+- q: 삼성전자와 SK하이닉스의 2023년 영업이익 비교
+  type: compare
+  expect:
+    - {section: [요약재무, 경영진단, 연결재무제표], corp: 삼성전자}
+    - {section: [요약재무, 경영진단, 연결재무제표], corp: SK하이닉스}
+- q: 삼성전자와 SK하이닉스 중 연구개발비를 더 많이 쓴 곳은?
+  type: compare
+  expect:
+    - {section: [연구개발], corp: 삼성전자}
+    - {section: [연구개발], corp: SK하이닉스}
+- q: 삼성전자와 SK하이닉스 직원 평균 급여 비교해줘
+  type: compare
+  expect:
+    - {section: [임원 및 직원], corp: 삼성전자}
+    - {section: [임원 및 직원], corp: SK하이닉스}
+
+# ---------------- outlook (회사가 공시에 쓴 전망)
+- q: 삼성전자가 보는 메모리 반도체 시장 전망은?
+  type: outlook
+  expect: [{section: [기타 참고사항, 경영진단, 사업의 개요], corp: 삼성전자}]
+- q: SK하이닉스는 HBM 수요를 어떻게 예상해?
+  type: outlook
+  expect: [{section: [기타 참고사항, 주요 제품, 경영진단], corp: SK하이닉스}]
+- q: SK하이닉스 2024년 반도체 업황은 앞으로 어떻게 될 거래?
+  type: outlook
+  expect: [{section: [기타 참고사항, 사업의 개요], corp: SK하이닉스, period: "2024.09"}]
+
+# ---------------- cause (원인·영향)
+- q: 삼성전자 2023년 실적이 왜 나빠졌어?
+  type: cause
+  expect: [{section: [경영진단, 기타 참고사항], corp: 삼성전자, period: "2023.12"}]
+- q: SK하이닉스가 2023년에 적자를 낸 이유는?
+  type: cause
+  expect: [{section: [경영진단, 기타 참고사항], corp: SK하이닉스, period: "2023.12"}]
+- q: 메모리 가격 하락이 삼성전자 실적에 미친 영향은?
+  type: cause
+  expect: [{section: [경영진단, 기타 참고사항], corp: 삼성전자}]

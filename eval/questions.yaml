@@ -1,0 +1,25 @@
+# 검색 평가셋. expect_section: 정답 청크의 section_path 에 포함돼야 하는 문자열 (하나라도 맞으면 정답)
+# type: exact(원문 어휘) / synonym(동의어) / concept(개념→항목) / narrative(서술)
+# 실데이터용으로 유형별 10문항 이상 늘려서 사용하세요. (아래는 sample_data 로도 동작하는 예시)
+
+- q: 2023년 보통주 1주당 배당금은?
+  type: exact
+  expect_section: [배당]
+- q: 2023년 사업보고서 기준 연결 매출액과 영업이익은?
+  type: exact
+  expect_section: [요약재무]
+- q: 2023년 인건비 부담은 어느 정도야?
+  type: concept
+  expect_section: [직원]
+- q: 2023년 R&D 투자 규모는?
+  type: synonym
+  expect_section: [연구개발]
+- q: 2023년 영업손익 규모는?
+  type: synonym
+  expect_section: [요약재무, 경영진단]
+- q: 2024년 3분기 DS부문 매출은?
+  type: exact
+  expect_section: [매출]
+- q: 2023년 DS부문 주요 제품은 뭐야?
+  type: narrative
+  expect_section: [사업의 개요, 매출]

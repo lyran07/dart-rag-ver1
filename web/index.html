@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>DART 공시 질의응답</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--g:#304632;--g2:#73876F;--bg:#FBF9F7;--ln:#DDE4DA;--tx:#746F69}
+body{margin:0;font-family:"Noto Sans KR",system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{padding:16px 24px;border-bottom:1px solid var(--ln);display:flex;gap:16px;align-items:center}
+header h1{margin:0;font-size:18px;color:var(--g)}
+main{max-width:1100px;margin:0 auto;padding:20px;display:grid;grid-template-columns:280px 1fr;gap:20px}
+.card{background:#fff;border:1px solid var(--ln);border-left:4px solid var(--g2);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+h2{font-size:15px;color:var(--g);margin:0 0 10px}
+select,input,textarea,button{font:inherit;font-size:14px}
+textarea{width:100%;box-sizing:border-box;min-height:80px;border:1px solid var(--ln);border-radius:6px;padding:8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+button{background:var(--g);color:#fff;border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+button.sec{background:#fff;color:var(--g);border:1px solid var(--g2)}
+.answer{white-space:pre-wrap;line-height:1.6;color:#333}
+.src{border-top:1px dashed var(--ln);padding:8px 0;font-size:13px}
+.src a{color:var(--g2)}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#EAF0E7;color:var(--g);margin-right:6px}
+.tag.warn{background:#F3E7DF;color:#8A655E}
+.muted{font-size:12px;color:#999}
+ul{padding-left:18px;margin:6px 0}
+details summary{cursor:pointer;color:var(--g2)}
+</style></head><body>
+<header><h1>국내 기업 공시정보 기반 질의응답</h1><span class="muted">답변은 DART 공시 발췌만을 근거로 생성되며, 출처를 반드시 확인하세요.</span></header>
+<main>
+<aside>
+ <div class="card"><h2>기업 선택</h2>
+  <select id="corp" style="width:100%"><option value="">전체</option></select>
+  <div class="row"><label>연도 <input id="year" size="4" placeholder="2023"></label>
+  <label><input type="checkbox" id="strict"> 조건 엄격 적용</label></div>
+ </div>
+ <div class="card"><h2>기업 Wiki</h2><div id="wiki" class="muted">기업을 선택하면 보고서 목록이 표시됩니다.</div></div>
+</aside>
+<section>
+ <div class="card"><h2>질문</h2>
+  <textarea id="q" maxlength="500" placeholder="예) 삼성전자 2023년 사업보고서 기준 연결 매출액과 영업이익은?"></textarea>
+  <div class="row"><button id="ask">질문하기</button><span id="cnt" class="muted">0 / 500자</span><span id="state" class="muted"></span></div>
+ </div>
+ <div class="card" id="out" style="display:none"><h2>답변 <span id="status" class="tag"></span><span id="llm" class="muted"></span></h2>
+  <div id="answer" class="answer"></div>
+  <h2 style="margin-top:14px">근거 공시</h2><div id="sources"></div>
+  <div class="row"><span class="muted">이 답변이 도움이 되었나요?</span><button class="sec" data-r="up">👍</button><button class="sec" data-r="down">👎 수치 오류</button><button class="sec" data-r="down2">👎 기업/기간 오류</button></div>
+ </div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);const api=(p,o)=>fetch(p,o).then(async r=>{const j=await r.json();if(!r.ok)throw j;return j});
+$('#q').oninput=e=>$('#cnt').textContent=`${e.target.value.length} / 500자`;
+api('/companies').then(j=>j.companies.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;$('#corp').append(o)}));
+$('#corp').onchange=async e=>{const c=e.target.value;if(!c){$('#wiki').textContent='기업을 선택하면 보고서 목록이 표시됩니다.';return}
+ try{const w=await api(`/companies/${encodeURIComponent(c)}/wiki`);$('#wiki').innerHTML='<ul>'+w.reports.map(r=>`<li>${r.title}${r.is_latest===false?' <span class="tag warn">정정 이전본</span>':''}<br><a class="muted" target="_blank" href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${r.rcept_no}">DART 원문</a></li>`).join('')+'</ul>'}
+ catch(err){$('#wiki').textContent=err.detail||'Wiki 없음'}};
+let lastQ='';
+$('#ask').onclick=async()=>{const q=$('#q').value.trim();if(!q)return alert('질문을 입력하세요.');
+ const filters={};if($('#corp').value)filters.corp_name=$('#corp').value;if($('#year').value)filters.year=$('#year').value.trim();
+ $('#state').textContent='검색·답변 생성 중…';$('#ask').disabled=true;
+ try{const a=await api('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,filters:Object.keys(filters).length?filters:null,strict:$('#strict').checked})});
+  lastQ=q;$('#out').style.display='';const st={answered:'답변 생성',no_evidence:'근거 없음',extractive_fallback:'LLM 사용 불가 · 발췌만 제공'}[a.status]||a.status;
+  $('#status').textContent=st;$('#status').className='tag'+(a.status==='answered'?'':' warn');$('#llm').textContent=a.llm!=='none'?`모델 ${a.llm}`:'';
+  $('#answer').textContent=a.answer+(a.plan.missing_citations?`\n\n⚠ 컨텍스트에 없는 출처 번호 인용: [${a.plan.missing_citations.join(', ')}]`:'');
+  $('#sources').innerHTML=a.sources.length?a.sources.map(s=>`<div class="src"><b>[${s.n}]</b> ${s.source} <span class="tag">${s.kind}</span><br><a target="_blank" href="${s.url}">DART 원문</a> · <a href="#" data-c="${s.chunk_id}">발췌 보기</a><div class="ev muted"></div></div>`).join(''):'<span class="muted">사용된 근거가 없습니다.</span>';
+  $('#sources').querySelectorAll('a[data-c]').forEach(el=>el.onclick=async ev=>{ev.preventDefault();const e=await api('/evidence/'+el.dataset.c);el.parentElement.querySelector('.ev').textContent=e.text});
+ }catch(err){$('#out').style.display='';$('#status').textContent='오류';$('#status').className='tag warn';$('#answer').textContent=(err.detail&&JSON.stringify(err.detail))||'요청 실패';$('#sources').innerHTML=''}
+ finally{$('#state').textContent='';$('#ask').disabled=false}};
+document.querySelectorAll('button[data-r]').forEach(b=>b.onclick=()=>api('/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:lastQ,rating:b.dataset.r==='up'?'up':'down',reason:b.dataset.r==='down'?'wrong_number':b.dataset.r==='down2'?'wrong_company_period':null})}).then(()=>b.textContent='기록됨 ✓'));
+</script></body></html>

@@ -1,73 +1,78 @@
 # 보고서 템플릿 (팀이 관리). 코드 수정 없이 섹션을 더하거나 바꿀 수 있다.
-#   routes      : config/wiki_routes.yaml 의 id. 이 섹션이 읽을 위키 섹션 (검색·임베딩 없음)
-#   keywords    : 긴 위키 페이지에서 관련 부분을 발췌할 때 쓰는 단어 (없으면 routes 의 keywords)
-#   instruction : 이 섹션에서 LLM 이 쓸 내용
-#   table       : true 면 table_markdown 에 표를 요구한다
-#   summary     : true 면 위키 대신 앞 섹션들의 결과만 읽고 쓴다 (종합 의견, 마지막에 실행)
+#   routes       : config/wiki_routes.yaml 의 id. 이 섹션이 읽을 위키 섹션 (검색·임베딩 없음)
+#   keywords     : 긴 위키 페이지에서 관련 부분을 발췌할 때 쓰는 단어 (없으면 routes 의 keywords)
+#   instruction  : 이 섹션에서 다룰 내용. 공통 형식(특징 → 데이터 → 해석)은 builder.py 의 SECTION_SYSTEM
+#   table        : true 면 데이터 표를 반드시 요구한다 (false 면 필요할 때만)
+#   report_types : 이 섹션을 만들 공시 유형 (비우면 전부). 예: 반기·분기보고서에 없는 항목은 사업보고서만
+#   summary      : true 면 위키 대신 앞 섹션 결과만 읽고 "한눈에 보기"를 쓴다 (마지막에 생성, 맨 앞에 표시)
+# 근거에 내용이 없는 섹션은 보고서에서 자동으로 빠진다.
 
 defaults:
   page_chars: 7000            # 위키 페이지 1개당 LLM 에 넣는 최대 글자 (기간 1개)
   page_chars_compare: 4500    # 비교 기간이 있을 때 페이지당 글자
   max_pages: 4                # 섹션·기간당 읽는 위키 페이지 수 상한
   context_chars: 22000        # 섹션 1개의 근거 총량 상한
-  parallel: 4                 # 동시에 작성하는 섹션 수
-  max_output_tokens: 1800
+  parallel: 7                 # 동시에 작성하는 섹션 수 (일반 섹션 전부 한 번에)
+  max_output_tokens: 1000     # 섹션당 출력 상한 (출력 길이가 생성 시간을 좌우)
   reasoning: none             # Luna 추론 강도 (속도 우선)
 
 templates:
   company_analysis:
     title: 기업분석 보고서
     sections:
+      - id: summary
+        title: 한눈에 보기
+        summary: true
+        instruction: >-
+          보고서 전체에서 이 기업의 가장 두드러진 특징 3~4가지를 잇고, 투자자가 점검할 포인트를 정리한다.
+
       - id: overview
-        title: 기업 개요
+        title: 사업 구조
         routes: [business_overview, products]
         instruction: >-
-          회사의 주요 사업과 사업부문, 주요 제품·서비스, 부문별 매출 비중을 정리한다.
-          비교 기간이 있으면 사업 구성이나 비중이 달라진 점을 적는다.
+          무엇으로 돈을 버는 회사인지, 사업부문과 주력 제품의 구성과 비중이 특징이다.
+          매출 총액·이익 같은 실적 숫자는 '실적' 섹션에서 다루므로 쓰지 않는다. 비중(%)과 제품 구성만 쓴다.
+          비교 기간이 있으면 구성이 달라졌는지에 초점을 둔다.
 
       - id: financials
-        title: 실적·재무 요약
+        title: 실적
         routes: [summary_financials]
         keywords: [매출액, 영업이익, 당기순이익, 자산총계, 부채총계, 자본총계, 연결, 요약]
         table: true
         instruction: >-
-          요약연결재무정보 기준으로 매출액, 영업이익, 당기순이익, 자산총계, 부채총계, 자본총계를 정리한다.
-          table_markdown 에는 항목을 행으로, 기간(기수)을 열로 둔 표를 원문 값 그대로 쓰고 단위를 표 위 첫 줄에 적는다.
-          연결 기준이 없으면 별도 기준임을 밝힌다. 증감률은 표에 넣지 말고 interpretation 에서 대략적인 방향만 말한다.
+          성장과 수익성이 어떤 모습인지가 특징이다. 요약연결재무정보 기준(없으면 별도임을 밝힘)으로 매출액, 영업이익,
+          당기순이익, 자산총계, 부채총계, 자본총계를 표로 보여준다. 표는 항목을 행, 기간(기수)을 열로 둔다.
+          해석에서 증감 배수, 영업이익률, 부채비율 등을 반올림해 제시한다.
 
       - id: sales
-        title: 매출 및 수주
+        title: 판매와 수주
         routes: [sales_orders]
         instruction: >-
-          부문별·지역별 매출 실적, 주요 판매경로, 수주 현황을 정리한다. 수치는 기간과 단위를 함께 적는다.
+          어디에 어떻게 파는지(부문·지역·판매경로)와 수주 상황이 특징이다. 매출 총액은 '실적' 섹션에서 다루므로
+          반복하지 않고, 구성·경로·수주잔고처럼 이 섹션에만 있는 내용을 쓴다.
 
       - id: operations
-        title: 원재료·생산설비
+        title: 생산과 원가
         routes: [raw_materials]
         instruction: >-
-          주요 원재료와 가격 변동, 생산능력과 가동률, 설비투자 현황을 정리한다.
+          생산능력·가동률, 주요 원재료와 가격 변동 요인, 설비투자 규모가 특징이다. 단위가 없는 표는 확인할 점에 적는다.
 
       - id: risk
-        title: 리스크 요인
+        title: 리스크
         routes: [risk_derivatives, contingencies]
         instruction: >-
-          환율·금리·유동성 등 재무 위험과 관리 방식, 파생상품, 우발부채·소송 등 주요 위험 요인을 정리한다.
+          가장 중요한 위험 2~3가지만 고른다(예: 환율 민감도, 금리, 우발부채·소송·지급보증).
+          모든 통화·항목을 나열하지 말고 영향이 큰 것만 표로 보여준다.
 
       - id: management
         title: 경영진 시각
         routes: [mdna]
+        report_types: [사업보고서]     # 반기·분기보고서는 이 항목을 기재하지 않는다
         instruction: >-
-          경영진이 설명하는 실적 변동 원인, 사업 전망, 중점 추진 사항을 정리한다.
-          반기·분기보고서에는 이 섹션이 없을 수 있으며, 없으면 없다고 적는다.
+          경영진이 설명하는 실적 변동 원인, 사업 전망, 중점 추진 사항이 특징이다.
 
       - id: shareholders
-        title: 주주·배당
+        title: 주주와 배당
         routes: [shareholders, dividends]
         instruction: >-
-          최대주주와 특수관계인 지분, 5% 이상 주주, 주당배당금·배당성향 등 배당 현황을 정리한다.
-
-      - id: summary
-        title: 종합 의견
-        summary: true
-        instruction: >-
-          앞 섹션들의 내용을 바탕으로 이 기업의 현재 상황을 요약하고, 투자자가 점검할 포인트를 정리한다.
+          지배구조(최대주주·주요 주주 지분)와 주주환원(주당배당금·배당성향·배당정책)이 특징이다.

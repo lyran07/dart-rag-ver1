@@ -11,7 +11,7 @@ from ..config import PROJECT_ROOT
 TEMPLATES_PATH = PROJECT_ROOT / "config" / "report_templates.yaml"
 
 DEFAULTS = {"page_chars": 7000, "page_chars_compare": 4500, "max_pages": 4, "context_chars": 22000,
-            "parallel": 4, "max_output_tokens": 1800, "reasoning": "none"}
+            "parallel": 7, "max_output_tokens": 1000, "reasoning": "none"}
 
 
 @dataclass
@@ -23,6 +23,7 @@ class SectionSpec:
     keywords: list[str] = field(default_factory=list)
     table: bool = False
     summary: bool = False
+    report_types: list[str] = field(default_factory=list)   # 비어 있으면 모든 공시 유형
 
 
 @dataclass
@@ -44,7 +45,8 @@ def load_templates(path: str | Path | None = None) -> dict[str, ReportTemplate]:
     for tid, t in (raw.get("templates") or {}).items():
         secs = [SectionSpec(id=s["id"], title=s["title"], instruction=str(s.get("instruction", "")).strip(),
                             routes=list(s.get("routes") or []), keywords=list(s.get("keywords") or []),
-                            table=bool(s.get("table")), summary=bool(s.get("summary")))
+                            table=bool(s.get("table")), summary=bool(s.get("summary")),
+                            report_types=list(s.get("report_types") or []))
                 for s in t.get("sections") or []]
         ids = [s.id for s in secs]
         if len(ids) != len(set(ids)):

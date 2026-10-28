@@ -14,10 +14,11 @@ from dart_rag.report.templates import ReportTemplate, SectionSpec
 from dart_rag.service import RAGService
 
 TPL = {"t": ReportTemplate("t", "테스트 보고서", [
+    SectionSpec("sum", "한눈에 보기", "종합한다", summary=True),
     SectionSpec("fin", "실적", "요약재무를 정리한다", routes=["summary_financials"], table=True),
     SectionSpec("sales", "매출", "매출을 정리한다", routes=["sales_orders"]),
     SectionSpec("none", "없는 섹션", "없다", routes=["audit"]),
-    SectionSpec("sum", "종합", "종합한다", summary=True),
+    SectionSpec("mg", "경영진", "사업보고서만", routes=["mdna"], report_types=["사업보고서"]),
 ])}
 
 
@@ -36,14 +37,15 @@ class EchoLLM:
     def step(self, conv, tools, schema, allow_tools=True):
         u = conv["u"]
         m = re.search(r"<근거 id=([^>]+)>\n출처: [^\n]*\n(.*?)</근거>", u, re.S)
-        if m is None:   # 종합 의견
-            out = {"conclusion": "종합 결론", "key_points": ["요점 (실적)"], "interpretation": ["점검"],
-                   "table_markdown": "", "evidence": []}
+        if m is None:   # 한눈에 보기
+            out = {"headline": "종합 특징", "overview": "요약 서술", "table_markdown": "",
+                   "interpretation": ["점검 1", "점검 2", "점검 3", "넘침"], "watch": ["a", "b"], "evidence": []}
         else:
             num = (re.findall(r"\d{1,3}(?:,\d{3})+", m.group(2)) or ["0"])[0]
-            out = {"conclusion": f"결론 [1]", "key_points": [f"값은 {num} [1]"], "interpretation": [],
-                   "table_markdown": f"| 항목 | 값 |\n|---|---|\n| 원문 | {num} |\n| 만든값 | 987,654,321 |"
-                   if "표를 반드시" in u else "",
+            out = {"headline": "특징 한 줄", "overview": f"값은 {num} [1]",
+                   "table_markdown": "" if "표가 꼭 필요하지 않다" in u
+                   else f"단위: 백만원\n| 항목 | 값 |\n|---|---|\n| 원문 | {num} |\n| 만든값 | 987,654,321 |",
+                   "interpretation": ["약 3.3배 [1]"], "watch": [],
                    "evidence": [{"chunk_id": m.group(1), "quote": f"원문 숫자 {num}"}]}
         return StepResult([], json.dumps(out, ensure_ascii=False),
                           {"input_tokens": len(u), "output_tokens": 50, "usd": 0.001}, 0.0)
@@ -64,7 +66,9 @@ def test_report_sections_compare_and_cache(tmp_path):
     assert st["fin"].status == "done" and st["fin"].sources[0]["verified"]
     assert st["fin"].table_markdown and st["fin"].check["table_unverified_numbers"] == ["987,654,321"]
     assert st["none"].status == "no_evidence" and st["none"].diag["pages_found"] == 0
+    assert "mg" not in st                                              # 분기보고서 → 사업보고서 전용 섹션 제외
     assert st["sum"].status == "done" and st["sum"].kind == "summary"
+    assert len(st["sum"].interpretation) == 3 and st["sum"].watch == ["a"]   # 분량 상한
     # 비교 공시 두 기간의 위키가 모두 근거로 들어갔는지
     fin_prompt = next(u for i, u in rb._llm.prompts if "보고서 섹션: 실적" in u)
     assert "(2024.09)" in fin_prompt and "(2023.12)" in fin_prompt and "비교: " in fin_prompt
@@ -72,12 +76,14 @@ def test_report_sections_compare_and_cache(tmp_path):
     assert "[섹션 요약]" in rb._llm.prompts[-1][1] and "## 실적" in rb._llm.prompts[-1][1]
     assert job.usage["usd"] == 0.003
     md = to_markdown(job)
-    assert "## 실적" in md and "987,654,321" in md and "원문에서 찾지 못한 숫자" in md
+    assert "987,654,321" in md and "원문에서 찾지 못한 숫자" in md
+    assert md.index("## 한눈에 보기") < md.index("## 실적")             # 한눈에 보기가 맨 앞
+    assert "## 없는 섹션" not in md and "생략한 섹션: 없는 섹션" in md     # 빈 섹션은 빠지고 맨 끝에 표시
 
     # 같은 조건 → 저장본 (LLM 호출 없음)
     n = len(rb._llm.prompts)
     again = rb.run("삼성전자", "2024.09", "2023.12", "t")
-    assert again.from_cache and len(rb._llm.prompts) == n and again.sections[0].conclusion == job.sections[0].conclusion
+    assert again.from_cache and len(rb._llm.prompts) == n and again.sections[1].overview == job.sections[1].overview
     assert rb.has_cached("삼성전자", "2024.09", "2023.12", "t")
     assert not rb.has_cached("삼성전자", "2024.09", None, "t")
 
@@ -138,10 +144,10 @@ def test_report_api(tmp_path, monkeypatch):
         import time
         time.sleep(0.05)
         j = c.get(f"/report/{j['id']}").json()
-    assert j["status"] == "done" and j["progress"] == {"done": 4, "total": 4}
+    assert j["status"] == "done" and j["progress"] == {"done": 4, "total": 4}      # mg 제외
     md = c.get(f"/report/{j['id']}/markdown")
     assert md.status_code == 200 and "## 실적" in md.text
-    sid = j["sections"][0]["sources"][0]["chunk_id"]
+    sid = next(s for s in j["sections"] if s["id"] == "fin")["sources"][0]["chunk_id"]
     w = c.get(f"/wiki/sections/{sid}").json()
     assert w["corp"] == "삼성전자" and w["text"]
     j2 = c.post("/report", json={"corp": "삼성전자", "period": "2024.09", "compare_period": "none",

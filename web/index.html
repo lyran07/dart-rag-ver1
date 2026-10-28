@@ -34,6 +34,12 @@ nav.tabs button.on{background:var(--g);color:#fff;border-color:var(--g)}
 .rsec th:first-child,.rsec td:first-child{text-align:left}
 .rsec th{background:#F3F6F1}
 .rsec sup a{color:var(--g2);text-decoration:none}
+.rsec .headline{font-size:15px;font-weight:600;color:#222;margin:2px 0 6px;line-height:1.5}
+.rsec .interp{background:#F3F6F1;border-radius:6px;padding:8px 12px;margin-top:10px}
+.rsec .interp .lbl{margin-top:0}
+.rsec .interp ul{margin:4px 0 0}
+.sumcard{border-left-color:var(--g)}
+.watch{font-size:12px;color:#8A655E;margin-top:8px}
 .warnbox{background:#F8EFE9;border-radius:6px;padding:6px 10px;font-size:13px;color:#8A655E;margin-top:8px}
 .prog{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .quote{background:#F7F7F5;border-radius:4px;padding:4px 8px;margin:4px 0;font-size:12px;color:#555}
@@ -66,7 +72,7 @@ pre.wikitext{white-space:pre-wrap;font-size:12px;max-height:320px;overflow:auto;
 </section>
 <section id="tab-report" style="display:none">
  <div class="card noprint"><h2>기업분석 보고서</h2>
-  <div class="muted">공시 1건을 투자자 관점의 섹션으로 정리합니다. 미리 만들어 둔 보고서는 바로 열리고, 없으면 지금 생성합니다(20초 안팎).</div>
+  <div class="muted">공시 1건을 투자자 관점의 섹션으로 정리합니다. 미리 만들어 둔 보고서는 바로 열리고, 없으면 지금 생성합니다(30초 안팎).</div>
   <div class="row"><label>기준 공시 <select id="rbase" style="min-width:220px"><option value="">왼쪽에서 기업을 선택하세요</option></select></label></div>
   <div class="row"><label>비교 공시 <select id="rcmp" style="min-width:220px"></select></label></div>
   <div class="row"><button id="rgo">보고서 보기</button><span id="rstate" class="muted"></span></div>
@@ -74,7 +80,7 @@ pre.wikitext{white-space:pre-wrap;font-size:12px;max-height:320px;overflow:auto;
  </div>
  <div id="rout" style="display:none">
   <div class="card"><h2 id="rtitle"></h2><div id="rmeta" class="muted"></div>
-   <div class="warnbox">DART 공시 원문만을 근거로 자동 생성한 초안입니다. 수치는 근거의 원문으로 확인하세요. '해석'과 종합 의견은 공시 내용에서 추론한 것이며 투자 권유가 아닙니다.</div>
+   <div class="muted" style="margin-top:6px">DART 공시 원문만을 근거로 자동 생성한 초안입니다. 표의 수치는 원문 값이고, 해석의 배수·비율은 반올림한 계산값입니다. 투자 권유가 아닙니다.</div>
    <div class="row noprint"><button class="sec" id="rmd">마크다운 다운로드</button><button class="sec" id="rprint">인쇄 / PDF 저장</button></div>
   </div>
   <div id="rsecs"></div>
@@ -122,38 +128,38 @@ function fillCmp(){const r=reps.find(x=>x.period===$('#rbase').value);if(!r){$('
   +others.map(x=>`<option value="${esc(x.period)}">${esc(x.title)}</option>`).join('')}
 $('#rbase').onchange=fillCmp;
 
-const ST={pending:['대기',''],running:['작성 중',''],done:['완료',''],no_evidence:['근거 없음','warn'],error:['오류','warn']};
+const ST={pending:['대기',''],running:['작성 중',''],done:['완료',''],no_evidence:['생략','warn'],error:['오류','warn']};
 function mdTable(md){const lines=md.split('\n').map(l=>l.trim()).filter(Boolean);let h='',rows=[];
  for(const l of lines){if(l.startsWith('|')){if(/^\|[\s:|-]+\|?$/.test(l))continue;rows.push(l.replace(/^\||\|$/g,'').split('|').map(x=>x.trim()))}else h+=`<div class="muted">${esc(l)}</div>`}
  if(!rows.length)return h;return h+'<table><thead><tr>'+rows[0].map(c=>`<th>${esc(c)}</th>`).join('')+'</tr></thead><tbody>'
   +rows.slice(1).map(r=>'<tr>'+r.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>').join('')+'</tbody></table>'}
 function cite(t,sid){return esc(t).replace(/\[(\d+)\]/g,`<sup><a href="#src-${sid}-$1">[$1]</a></sup>`)}
-function secHtml(s){const [lab,cls]=ST[s.status]||[s.status,''];const sid=esc(s.id);
- let h=`<h3>${esc(s.title)} <span class="tag ${cls}">${lab}</span>${s.kind==='summary'?'<span class="tag warn">해석</span>':''}</h3>`;
+function secHtml(s){const [lab,cls]=ST[s.status]||[s.status,''];const sid=esc(s.id),sum=s.kind==='summary';
+ let h=`<h3>${esc(sum?'한눈에 보기':s.title)}${s.status==='done'?'':` <span class="tag ${cls}">${lab}</span>`}</h3>`;
  if(s.status==='pending'||s.status==='running')return h+'<div class="muted">작성 중입니다…</div>';
- if(s.error)h+=`<div class="warnbox">작성 실패: ${esc(s.error)}</div>`;
- if(s.conclusion)h+=`<p>${cite(s.conclusion,sid)}</p>`;
+ if(s.error)return h+`<div class="warnbox">작성 실패: ${esc(s.error)}</div>`;
+ if(s.headline)h+=`<div class="headline">${cite(s.headline,sid)}</div>`;
+ if(s.overview)h+=`<p>${cite(s.overview,sid)}</p>`;
  if(s.table_markdown)h+=mdTable(s.table_markdown);
- if(s.key_points.length)h+=`<div class="lbl">${s.kind==='summary'?'핵심 사항':'주요 내용 (공시 확인 사항)'}</div><ul>`+s.key_points.map(x=>`<li>${cite(x,sid)}</li>`).join('')+'</ul>';
- if(s.interpretation.length)h+=`<div class="lbl">${s.kind==='summary'?'점검 포인트':'해석'}</div><ul>`+s.interpretation.map(x=>`<li>${cite(x,sid)}</li>`).join('')+'</ul>';
- const c=s.check||{},w=[];if(c.n_unverified)w.push(`원문과 대조되지 않은 근거 ${c.n_unverified}건`);
+ if(s.interpretation.length)h+=`<div class="interp"><div class="lbl">${sum?'점검 포인트':'해석'}</div><ul>`+s.interpretation.map(x=>`<li>${cite(x,sid)}</li>`).join('')+'</ul></div>';
+ const c=s.check||{},w=[...(s.watch||[])];if(c.n_unverified)w.push(`원문과 대조되지 않은 근거 ${c.n_unverified}건`);
  if((c.table_unverified_numbers||[]).length)w.push('표에 원문에서 찾지 못한 숫자: '+c.table_unverified_numbers.slice(0,8).join(', '));
- if(w.length)h+=`<div class="warnbox">⚠ ${esc(w.join(' · '))}</div>`;
+ if(w.length)h+=`<div class="watch">확인할 점 · ${w.map(esc).join(' · ')}</div>`;
  if(s.sources.length)h+=`<details><summary>근거 ${s.sources.length}건</summary>`+s.sources.map(x=>`<div class="src" id="src-${sid}-${x.n}"><b>[${x.n}]</b> ${esc(x.source)} ${x.verified?'':'<span class="tag warn">미검증</span>'}<div class="quote">${esc(x.quote)}</div>${x.url?`<a target="_blank" href="${esc(x.url)}">DART 원문</a> · `:''}<a href="#" data-w="${esc(x.chunk_id)}">위키 원문 보기</a><pre class="wikitext" style="display:none"></pre></div>`).join('')+'</details>';
  const d=s.diag||{};const dg=[];
  if(d.total_sec!=null)dg.push(`${d.total_sec}s`);if(d.n_context!=null)dg.push(`근거 ${d.n_context}개 · ${(d.context_chars||0).toLocaleString()}자`);
  if(d.pages_trimmed)dg.push(`발췌로 줄인 페이지 ${d.pages_trimmed}`);if(d.dropped_for_budget)dg.push(`글자 예산 초과로 뺀 근거 ${d.dropped_for_budget}`);
- if((d.periods_without_pages||[]).length)dg.push(`섹션 없는 기간 ${d.periods_without_pages.join(',')}`);
  if(d.input_tokens!=null)dg.push(`토큰 ${d.input_tokens}/${d.output_tokens}`);
  if(dg.length)h+=`<div class="diag">진단: ${esc(dg.join(' · '))}</div>`;return h}
 function render(j){job=j;$('#rout').style.display='';$('#rtitle').textContent=`${j.corp} ${j.title}`;
  $('#rmeta').textContent=`기준: ${j.base_report.title}`+(j.compare_report?` · 비교: ${j.compare_report.title}`:'')
   +(j.from_cache?` · 저장본 (생성 ${j.generated_sec??'-'}초)`:` · ${j.status==='running'?'생성 중':'생성'} ${j.elapsed}초`)
   +(j.usage&&j.usage.usd!=null&&!j.from_cache?` · $${j.usage.usd}`:'');
- $('#rprog').innerHTML=j.sections.map(s=>{const [lab,cls]=ST[s.status]||[s.status,''];return `<span class="tag ${cls}">${esc(s.title)} · ${lab}</span>`}).join('');
- for(const s of j.sections){let el=document.getElementById('rs-'+s.id);
-  if(!el){el=document.createElement('div');el.className='card rsec';el.id='rs-'+s.id;$('#rsecs').append(el)}
-  if(drawn[s.id]!==s.status){el.innerHTML=secHtml(s);drawn[s.id]=s.status}}
+ $('#rprog').innerHTML=j.sections.map(s=>{const [lab,cls]=s.status==='no_evidence'?['내용 없음 · 생략','warn']:(ST[s.status]||[s.status,'']);return `<span class="tag ${cls}">${esc(s.title)} · ${lab}</span>`}).join('');
+ const order=[...j.sections.filter(s=>s.kind==='summary'),...j.sections.filter(s=>s.kind!=='summary')];
+ for(const s of order){let el=document.getElementById('rs-'+s.id);
+  if(!el){el=document.createElement('div');el.className='card rsec'+(s.kind==='summary'?' sumcard':'');el.id='rs-'+s.id;$('#rsecs').append(el)}
+  if(drawn[s.id]!==s.status){el.style.display=s.status==='no_evidence'?'none':'';el.innerHTML=secHtml(s);drawn[s.id]=s.status}}
  $('#rstate').textContent=j.status==='running'?`생성 중… ${j.progress.done}/${j.progress.total} 섹션`:(j.status==='error'?`오류: ${j.error}`:'');}
 $('#rsecs').addEventListener('click',async ev=>{const a=ev.target.closest('a[data-w]');if(!a)return;ev.preventDefault();
  const pre=a.parentElement.querySelector('pre');if(pre.style.display===''){pre.style.display='none';return}

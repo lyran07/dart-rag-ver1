@@ -30,7 +30,8 @@ copy .env.example .env      # .env 를 열어 키 3개 입력 (아래 표)
 ### 데이터 준비
 
 `data/` 폴더(공시 원문·인덱스·위키·보고서, 압축 약 205MB)는 용량 때문에 코드와 따로 둡니다.
-GitHub 저장소 오른쪽 **Releases** 에서 `data.zip` 을 받아 프로젝트 폴더에 풀면(`data/` 폴더가 생김) 바로 질문할 수 있습니다.
+**[dart-rag-ver1 저장소의 Releases (data-v1)](https://github.com/tankingproducer/dart-rag-ver1/releases/tag/data-v1)** 에서 `data.zip` 을 받아
+프로젝트 폴더에 풀면(`data/` 폴더가 생김) 바로 질문할 수 있습니다. (태그가 다르면 [Releases 목록](https://github.com/tankingproducer/dart-rag-ver1/releases)에서 최신 데이터를 받으세요.)
 
 ```powershell
 Expand-Archive data.zip -DestinationPath .     # 프로젝트 폴더에서

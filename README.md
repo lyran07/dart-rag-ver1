@@ -1,5 +1,7 @@
 # DART 공시 질의응답 백엔드 (v0.3)
 
+> 코드 구조와 설계 이유: [docs/CODE_GUIDE.md](docs/CODE_GUIDE.md)
+
 DART 정기보고서(사업·반기·분기)를 수집·가공해 두고, 자연어 질문에 공시 원문 근거를 붙여 답하는 FastAPI 백엔드입니다.
 
 - 수집·가공: OpenDART 원문 → 섹션·표 파싱 → 청킹 → OpenAI 임베딩(text-embedding-3-small) → SQLite + 메모리 인덱스(dense + BM25) + 위키
@@ -153,7 +155,7 @@ config/  corp_lists/  scripts/  tests/  eval/  web/index.html
 data/    (저장소 미포함) raw · parsed · chunks · emb · index · catalog.db · docstore.db · wiki
 ```
 
-`docs/` 의 문서는 v0.2 기준이라 auto 모드·에이전트 내용이 없습니다.
+코드 구조·설계 이유는 **[docs/CODE_GUIDE.md](docs/CODE_GUIDE.md)** 를 보세요. (`docs/ARCHITECTURE.md` 는 v0.2 기준이라 auto 모드·에이전트·보고서 내용이 없습니다.)
 
 ## 7. 선택 구성
 

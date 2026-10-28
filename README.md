@@ -1,185 +1,223 @@
-# DART 공시 질의응답 백엔드 (v0.3)
+# DART 공시 질의응답 · 보고서 서비스 (v0.3)
 
-> 코드 구조와 설계 이유: [docs/CODE_GUIDE.md](docs/CODE_GUIDE.md)
+삼성전자, SK하이닉스, 현대자동차의 DART 정기보고서(사업·반기·분기)를 바탕으로 두 가지를 제공합니다.
 
-DART 정기보고서(사업·반기·분기)를 수집·가공해 두고, 자연어 질문에 공시 원문 근거를 붙여 답하는 FastAPI 백엔드입니다.
+- **질문**: 자연어로 물으면 공시 원문을 근거로 답하고, 답에 쓴 숫자를 원문과 대조해 검증합니다.
+- **보고서**: 공시 1건을 투자자 관점의 보고서(한눈에 보기 → 섹션별 특징·데이터·해석)로 정리합니다.
 
-- 수집·가공: OpenDART 원문 → 섹션·표 파싱 → 청킹 → OpenAI 임베딩(text-embedding-3-small) → SQLite + 메모리 인덱스(dense + BM25) + 위키
-- 답변: 라우터(Gemini)가 경로 선택(wiki / hybrid / vector / agent) → GPT-6 Luna 답변 → 인용 숫자를 원문과 대조 검증
-- 대상 기업: 삼성전자, SK하이닉스, 현대자동차 (`corp_lists/team1.txt`)
+코드 구조와 설계 이유는 [docs/CODE_GUIDE.md](docs/CODE_GUIDE.md)에 있습니다.
 
-## 1. 처음 받았을 때 (Windows)
+---
+
+## 빠른 시작: 웹사이트로 실행하기 (Windows)
+
+아래 5단계를 마치면 브라우저에서 `http://localhost:8080` 으로 서비스를 쓸 수 있습니다.
+필요한 것: Python 3.11 이상, 인터넷 연결, API 키 3개.
+
+### 1단계. 설치
+
+PowerShell을 열고 프로젝트 폴더로 이동해 가상환경을 만들고 패키지를 설치합니다.
 
 ```powershell
-cd dart-rag-backend-main
+cd "C:\경로\dart-rag-backend-main"      # 이 README가 있는 폴더
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\activate                  # 프롬프트 앞에 (.venv) 가 붙으면 성공
 pip install -r requirements.txt
-
-copy .env.example .env      # .env 를 열어 키 3개 입력 (아래 표)
 ```
 
-| 키 | 용도 | 발급 |
-|---|---|---|
-| `OPENDART_API_KEY` | 공시 원문 수집 | https://opendart.fss.or.kr |
-| `OPENAI_API_KEY` | GPT-6 Luna 답변, 질문 임베딩 | https://platform.openai.com |
-| `GEMINI_API_KEY` | auto 모드 라우터 | https://aistudio.google.com |
+> `activate` 에서 "스크립트를 실행할 수 없습니다" 오류가 나면 한 번만 실행하세요.
+> `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
 
-`.env` 는 각자 만들어 쓰고 git 에 올리지 않습니다 (`.gitignore` 에 포함).
+### 2단계. API 키 넣기
 
-### 데이터 준비
-
-`data/` 폴더(공시 원문·인덱스·위키·보고서, 압축 약 205MB)는 용량 때문에 코드와 따로 둡니다.
-**[dart-rag-ver1 저장소의 Releases (data-v1)](https://github.com/tankingproducer/dart-rag-ver1/releases/tag/data-v1)** 에서 `data.zip` 을 받아
-프로젝트 폴더에 풀면(`data/` 폴더가 생김) 바로 질문할 수 있습니다. (태그가 다르면 [Releases 목록](https://github.com/tankingproducer/dart-rag-ver1/releases)에서 최신 데이터를 받으세요.)
+키는 **프로젝트 폴더 바로 아래의 `.env` 파일**에 넣습니다. 저장소에는 빈 양식 `.env.example` 만 있으므로 복사해서 만듭니다.
 
 ```powershell
-Expand-Archive data.zip -DestinationPath .     # 프로젝트 폴더에서
+copy .env.example .env
+notepad .env
 ```
-직접 만들려면 아래 3번(데이터 수집)을 실행하세요. 임베딩에 OpenAI API 비용이 듭니다.
 
-### 실행
+메모장에서 아래 세 줄의 `=` 뒤에 본인 키를 붙여 넣고 저장합니다. 따옴표나 공백 없이 넣습니다.
+
+```ini
+OPENDART_API_KEY=발급받은_DART_키
+GEMINI_API_KEY=발급받은_Gemini_키
+OPENAI_API_KEY=sk-...
+```
+
+| 키 | 어디에 쓰나 | 발급처 | 없으면 |
+|---|---|---|---|
+| `OPENAI_API_KEY` | 답변·보고서 작성(GPT-6 Luna), 질문 임베딩 | https://platform.openai.com → API keys | **질문·보고서 생성 불가** (필수) |
+| `GEMINI_API_KEY` | 질문 경로 판정(라우터) | https://aistudio.google.com → Get API key | 규칙 라우터만으로 동작 (정확도 약간 하락) |
+| `OPENDART_API_KEY` | 공시 원문 수집 | https://opendart.fss.or.kr → 인증키 신청 | 받은 `data.zip` 만 쓰면 없어도 됨 |
+
+- 서버를 켤 때 `.env` 를 자동으로 읽습니다. 키를 바꿨다면 서버를 껐다 켜세요.
+- `.env` 는 `.gitignore` 에 들어 있어 git에 올라가지 않습니다. **키를 코드나 채팅에 붙여 넣지 마세요.**
+- 나머지 항목(`EMBED_PROVIDER=openai` 등)은 기본값 그대로 두면 됩니다.
+
+### 3단계. 데이터 받기
+
+공시 원문·인덱스·위키·미리 만든 보고서가 담긴 `data/` 폴더(압축 약 205MB)는 용량 때문에 코드와 따로 배포합니다.
+
+1. [Releases (data-v1)](https://github.com/tankingproducer/dart-rag-ver1/releases/tag/data-v1) 에서 `data.zip` 을 내려받아 프로젝트 폴더에 둡니다.
+2. 프로젝트 폴더에서 압축을 풉니다.
 
 ```powershell
-uvicorn dart_rag.api:app --port 8080        # http://localhost:8080 테스트 화면, /docs API 문서
+Expand-Archive data.zip -DestinationPath .
+```
+
+`data\catalog.db`, `data\wiki`, `data\reports` 등이 보이면 성공입니다. (`data\data\...` 처럼 한 겹 더 생겼다면 안쪽 `data` 를 바깥으로 옮기세요.)
+데이터를 직접 만들고 싶다면 아래 [데이터 직접 수집](#데이터-직접-수집)을 보세요.
+
+### 4단계. 서버 켜기
+
+```powershell
+uvicorn dart_rag.api:app --port 8080
+```
+
+`Uvicorn running on http://127.0.0.1:8080` 이 나오면 준비가 끝났습니다. 이 창은 켜 둔 채로 사용합니다.
+(첫 질문은 인덱스를 불러오느라 몇 초 더 걸립니다.)
+
+### 5단계. 브라우저에서 사용
+
+브라우저에서 **http://localhost:8080** 을 엽니다.
+
+| 탭 | 사용법 |
+|---|---|
+| **질문** | 예: `SK하이닉스 2026년 반기 연결 매출액은?`, `세 회사 직원 수 비교`. 답변 아래에 근거 문단과 숫자 검증 결과가 붙습니다. |
+| **보고서** | 기업과 공시를 고릅니다. 기본값 `비교 안 함`은 미리 만들어 둔 보고서라 바로 열립니다. `전년 동기`를 고르면 그 자리에서 생성(15초 안팎)하고 저장합니다. 인쇄 버튼으로 PDF 저장도 됩니다. |
+
+- 화면이 예전 모습이면 `Ctrl + F5` 로 새로고침하세요.
+- API 문서(직접 호출용)는 http://localhost:8080/docs 에 있습니다.
+- 끝낼 때는 서버 창에서 `Ctrl + C`. 다음부터는 `.venv\Scripts\activate` → `uvicorn ...` 두 줄이면 됩니다.
+
+**같은 와이파이의 팀원에게 보여주려면** `--host 0.0.0.0` 을 붙여 실행하고, 팀원은 `http://내PC의IP:8080` 으로 접속합니다. (`ipconfig` 의 IPv4 주소. Windows 방화벽 허용 창이 뜨면 허용)
+
+```powershell
+uvicorn dart_rag.api:app --host 0.0.0.0 --port 8080
+```
+
+### 자주 나는 문제
+
+| 증상 | 원인과 해결 |
+|---|---|
+| `OPENAI_API_KEY` 관련 오류, 401 | `.env` 위치(프로젝트 폴더 바로 아래)와 키 값을 확인하고 서버를 재시작 |
+| `429` / `RESOURCE_EXHAUSTED` (Gemini) | 무료 등급은 분당 15회 제한. 자동으로 규칙 라우터로 넘어가므로 답변은 계속 나옴 |
+| "분당 6회를 초과했습니다" | 서버의 과다 호출 방지 제한. 1분 뒤 다시 시도 (`ASK_RATE_PER_MIN` 으로 조정) |
+| 답이 "근거 없음"만 나옴 / 보고서 목록이 비어 있음 | `data/` 가 없거나 위치가 틀림. 3단계 다시 확인 |
+| `address already in use` | 8080 포트 사용 중. `--port 8081` 로 바꾸고 주소도 8081로 |
+| `uvicorn` 을 찾을 수 없음 | 가상환경이 꺼져 있음. `.venv\Scripts\activate` 후 다시 실행 |
+| `.env` 가 메모장에서 `.env.txt` 로 저장됨 | `ren .env.txt .env` |
+
+---
+
+## 명령줄로 쓰기
+
+```powershell
 python -m dart_rag ask "SK하이닉스 2026년 반기 연결 매출액은?"
-python -m dart_rag chat                      # 대화형
+python -m dart_rag chat                                   # 대화형
+python -m dart_rag route "질문"                            # 어떤 경로로 갈지만 확인
+python -m dart_rag report SK하이닉스 2026.06 --out report.md                 # 보고서 1건 (단일)
+python -m dart_rag report SK하이닉스 2026.06 --compare auto --out report.md  # 전년 동기 비교
 ```
 
-## 2. 키 없이 동작 확인 · 테스트
-
-```powershell
-pip install -r requirements-dev.txt
-pytest -q                                    # 72개 (PostgreSQL 전용 3개는 건너뜀)
-
-$env:EMBED_PROVIDER="hashing"; $env:DART_DATA_ROOT="data_sample"
-python -m dart_rag sample                    # 합성 샘플로 전체 파이프라인 (키 불필요)
-```
-
-## 3. 데이터 수집
-
-```powershell
-# 한 번에: team1.txt 3개 기업, 2025-01-01~오늘, 반기·분기보고서
-powershell -ExecutionPolicy Bypass -File scripts\fetch_dart.ps1
-powershell -ExecutionPolicy Bypass -File scripts\fetch_dart.ps1 -Limit 6     # 먼저 6건만 시험
-
-# 단계별로
-python -m dart_rag discover --corp-file corp_lists/team1.txt --from 20250101 --to 20261231
-python -m dart_rag run --latest-only         # fetch → parse → chunk → embed → index → wiki → report
-python -m dart_rag status                    # 진행 상황·용량
-```
-
-끊겨도 다시 실행하면 끝난 단계는 건너뜁니다. 파서·청커 설정을 바꾸면 해당 단계부터 자동으로 다시 실행됩니다.
-
-## 4. 답변 모드
+## 답변 모드
 
 | 모드 | 동작 | 지정 방법 |
 |---|---|---|
-| `auto` (기본) | 라우터가 wiki / hybrid / vector / agent 중 경로 선택 → 답변 1회. 근거가 없으면 agent 로 전환 | `--mode auto`, API `"mode"`, `ASK_MODE` |
-| `agent` | tool calling 에이전트가 도구 4개로 최대 4라운드 조사 | `--mode agent` |
-| `rag` | 검색 1회 + LLM 1회 (auto·agent 실패 시 대체 경로) | `--mode rag` |
+| `auto` (기본) | 라우터가 wiki / hybrid / vector / agent 중 경로를 골라 1회 답변. 근거가 없으면 agent로 전환 | `--mode auto`, API `"mode"`, `ASK_MODE` |
+| `agent` | 에이전트가 도구 4개로 최대 4라운드 조사 (느리지만 복잡한 질문에 강함) | `--mode agent` |
+| `rag` | 검색 1회 + LLM 1회 (대체 경로) | `--mode rag` |
 
-`python -m dart_rag route "질문"` 으로 어떤 경로가 선택되는지만 확인할 수 있습니다.
+## 보고서
 
-## 4-1. 기업분석 보고서
+공시 1건(선택적으로 전년 동기 공시와 비교)을 다음 섹션으로 정리합니다. 각 섹션은 특징 → 데이터 → 해석 순서로 쓰고, 근거가 없는 섹션은 빼고 보여 줍니다.
 
-공시 1건(선택적으로 전년 동기 공시와 비교)을 투자자 관점의 섹션으로 정리합니다.
-섹션: 기업 개요 · 실적·재무 요약 · 매출 및 수주 · 원재료·생산설비 · 리스크 요인 · 경영진 시각 · 주주·배당 · 종합 의견 (`config/report_templates.yaml`)
+한눈에 보기 · 사업 구조 · 실적 · 판매와 수주 · 생산과 원가 · 리스크 · 경영진 시각(사업보고서만) · 주주와 배당
 
-- **파이프라인**: `run` 의 마지막 `report` 단계가 공시마다 단일 보고서(비교 없음)를 만들어 `data/reports/` 에 저장합니다. `OPENAI_API_KEY` 필요.
-- **웹**: `보고서` 탭에서 기업·공시를 고르면 저장본은 즉시 열립니다. 전년 동기 비교는 선택 시 생성(15초 안팎)하고 저장합니다.
-- **CLI**: 한 건만 만들어 확인
+- 섹션마다 위키 페이지를 읽고 GPT-6 Luna를 1회 호출합니다(병렬). 한눈에 보기는 마지막에 다른 섹션을 요약해 씁니다.
+- 인용 숫자와 표 숫자를 원문과 대조해 불일치를 표시합니다.
+- 파이프라인의 마지막 `report` 단계가 공시마다 단일 보고서를 만들어 `data/reports/` 에 저장합니다. 템플릿이나 프롬프트를 바꾸면 버전이 바뀌어 새로 만듭니다.
+- 섹션 구성·지시문·글자 수: `config/report_templates.yaml`
 
-```powershell
-python -m dart_rag report SK하이닉스 2026.06 --out report.md                  # 단일 (기본)
-python -m dart_rag report SK하이닉스 2026.06 --compare auto --out report.md   # 전년 동기 비교 (또는 2025.06)
-python -m dart_rag run --stages report --latest-only                          # 기존 공시 전부 보고서 생성
-```
+## 데이터 직접 수집
 
-섹션마다 위키 페이지를 읽고 GPT-6 Luna 를 1회 호출합니다 (섹션 병렬, 종합 의견은 마지막). 인용 숫자와 표 숫자를 원문과 대조해 불일치를 표시하고, 근거 수·잘린 페이지·시간·토큰을 섹션별 진단으로 남깁니다.
-프롬프트나 템플릿을 바꾸면 버전이 바뀌어 저장본 대신 새로 생성합니다.
-
-## 4-2. 성능 평가
-
-`eval/qa_eval.yaml` (56문항, 정답은 위키 원문에서 확인한 값)으로 검색·라우터·답변을 측정합니다. 결과는 `eval/results/`.
+`OPENDART_API_KEY` 와 `OPENAI_API_KEY` 가 필요하며, 임베딩·보고서 생성에 OpenAI 비용이 듭니다.
 
 ```powershell
-python scripts/eval_qa.py --check                     # 정답이 원문에 있는지 검사 (0원)
-python scripts/eval_qa.py --route rules gemini        # 경로·회사·기간 인식 (약 4분, Gemini 무료 등급 속도 제한 적용)
-python scripts/eval_qa.py --retrieval                 # 검색 Recall@5·MRR, dense vs dense+BM25 (거의 0원)
-python scripts/eval_qa.py --answer auto               # 답변 정확도·결론·근거·시간·비용 (약 6분, 60원 안팎)
-python scripts/eval_qa.py --answer auto --types compare --label test   # 유형 일부만
-python scripts/eval_qa.py --answer auto --q "직원 수"                   # 질문 문구로 골라서
-python scripts/eval_qa.py --rescore eval/results/A.json               # 저장된 답변을 다시 채점 (0원)
+# 한 번에: corp_lists/team1.txt 3개 기업, 2025-01-01 ~ 오늘
+powershell -ExecutionPolicy Bypass -File scripts\fetch_dart.ps1
+powershell -ExecutionPolicy Bypass -File scripts\fetch_dart.ps1 -Limit 6    # 6건만 시험
+
+# 단계별로
+python -m dart_rag discover --corp-file corp_lists/team1.txt --from 20250101 --to 20261231
+python -m dart_rag run --latest-only     # fetch → parse → chunk → embed → index → wiki → report
+python -m dart_rag status                # 진행 상황·용량
 ```
 
-현재 결과 (auto, 56문항): 답변 정확도 98%, 결론 정확도 95%, 응답 중앙값 4.4초, 질문당 약 1원.
-BM25 결합으로 검색 성공률 58% → 78% (dense 단독 대비).
+중간에 끊겨도 다시 실행하면 끝난 단계는 건너뜁니다.
 
-## 5. 주요 설정
+## 테스트와 성능 평가
 
-설정 파일은 `config/`, 우선순위는 **환경변수(.env) > YAML > 코드 기본값** 입니다.
+```powershell
+pip install -r requirements-dev.txt
+pytest -q                                  # 키 없이 실행 (PostgreSQL 전용 3개는 건너뜀)
+```
+
+`eval/qa_eval.yaml`(56문항)으로 검색·라우터·답변을 측정합니다. 결과는 `eval/results/` 에 저장됩니다.
+
+```powershell
+python scripts/eval_qa.py --check                 # 정답이 원문에 있는지 검사 (비용 0)
+python scripts/eval_qa.py --route rules gemini    # 경로·회사·기간 인식 (약 4분)
+python scripts/eval_qa.py --retrieval             # 검색 Hit@5·MRR
+python scripts/eval_qa.py --answer auto           # 답변 정확도·시간·비용 (약 6분, 60원 안팎)
+python scripts/eval_qa.py --answer auto --q "직원 수"   # 질문 일부만
+```
+
+현재 결과(auto, 56문항): 답변 정확도 98%, 결론 정확도 95%, 응답 중앙값 4.4초, 질문당 약 1원.
+
+## 설정
+
+우선순위는 **`.env`(환경변수) > `config/*.yaml` > 코드 기본값** 입니다.
 
 | 환경변수 | 기본값 | 의미 |
 |---|---|---|
-| `EMBED_PROVIDER` | `openai` | `openai` \| `bge-m3` \| `bge-m3-onnx` \| `e5` \| `hashing`. 바꾸면 embed·index 단계를 다시 실행 |
-| `DOCSTORE_BACKEND` | `sqlite` | 청크 본문 저장소. `postgres` 는 docker 필요 |
-| `INDEX_BACKEND` | `memory` | 벡터 인덱스. `qdrant` 는 docker 또는 로컬 파일 모드 |
-| `ASK_MODE` | `auto` | 답변 모드 |
-| `LLM_ORDER` | `gemini,gemini_lite,openai` | rag 모드의 LLM 시도 순서 (`config/providers.yaml`) |
-| `DART_DATA_ROOT` | `data` | 산출물 저장 위치 |
+| `EMBED_PROVIDER` | `openai` | 임베딩 모델. 바꾸면 embed·index 단계를 다시 실행해야 함 |
+| `DOCSTORE_BACKEND` | `sqlite` | 청크 저장소 (`postgres` 는 docker 필요) |
+| `INDEX_BACKEND` | `memory` | 벡터 인덱스 (`qdrant` 선택 가능) |
+| `ASK_MODE` | `auto` | 기본 답변 모드 |
+| `DART_DATA_ROOT` | `data` | 데이터 폴더 위치 |
+| `ASK_RATE_PER_MIN` | `6` | IP당 분당 질문 수 제한 |
+| `REPORT_RATE_PER_MIN` | `3` | 분당 새 보고서 생성 제한 (저장본 열기는 제외) |
+| `API_ACCESS_TOKEN` | (비움) | 설정하면 API 호출에 `X-Access-Token` 헤더가 필요. 현재 웹 화면은 이 헤더를 보내지 않으므로 **로컬에서는 비워 두세요** |
 
 | 파일 | 내용 |
 |---|---|
 | `config/settings.yaml` | 청킹 크기, 임베딩, 저장소, 검색 후보 수 |
 | `config/agent.yaml` | LLM 모델, 라운드·시간 제한, 회사 별칭 |
-| `config/wiki_routes.yaml` | 질문 주제 → 위키 섹션 연결표 (20개) |
+| `config/wiki_routes.yaml` | 질문 주제 → 위키 섹션 연결표 |
 | `config/lexicon.yaml` | 동의어 사전 (BM25 검색 보강) |
-| `config/providers.yaml` | rag 모드 LLM 목록 |
-| `config/report_templates.yaml` | 보고서 섹션 구성·지시문·글자 예산 |
+| `config/report_templates.yaml` | 보고서 섹션 구성·지시문 |
 
-## 6. 폴더
+## 폴더 구조
 
 ```
 dart_rag/
-  domain.py config.py service.py api.py cli.py wiki.py
-  ingestion/   dart_client.py sources.py parser.py chunker.py   DART API · 파싱 · 청킹
-  pipeline/    stages.py runner.py catalog.py storage.py        단계 실행 · 진행 기록
-  embedding/   base.py providers.py device.py                   임베더
-  index/       base.py memory.py qdrant.py bm25.py tokenizer.py docstore.py
-  retrieval/   query.py retriever.py reranker.py                하이브리드 검색
-  routing/     router.py resolve.py routes.py auto.py           auto 모드
-  agent/       tools.py loop.py prompts.py llm.py config.py     tool calling 에이전트
-  generation/  answerer.py      llm/ router.py                   rag 모드
-  report/      builder.py templates.py                          기업분석 보고서
-config/  corp_lists/  scripts/  tests/  eval/  web/index.html
-data/    (저장소 미포함) raw · parsed · chunks · emb · index · catalog.db · docstore.db · wiki
+  api.py cli.py service.py config.py wiki.py domain.py
+  ingestion/   DART API 호출 · XML 파싱 · 청킹
+  pipeline/    단계 실행 · 진행 기록(catalog.db)
+  embedding/   임베딩 모델
+  index/       벡터 인덱스 · BM25 · 문서 저장소
+  retrieval/   하이브리드 검색
+  routing/     auto 모드 (라우터 · 위키 답변)
+  agent/       tool calling 에이전트 · 비교 검증
+  report/      보고서 생성
+config/  corp_lists/  scripts/  tests/  eval/  docs/
+web/index.html      웹 화면 (질문 · 보고서 탭)
+data/               저장소 미포함 → Releases 의 data.zip
 ```
 
-코드 구조·설계 이유는 **[docs/CODE_GUIDE.md](docs/CODE_GUIDE.md)** 를 보세요. (`docs/ARCHITECTURE.md` 는 v0.2 기준이라 auto 모드·에이전트·보고서 내용이 없습니다.)
+## 선택 구성
 
-## 7. 선택 구성
-
-### BGE-M3 로컬 임베딩 (GPU·API 없이)
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\setup_windows.ps1
-```
-`.env.local.example` 기준으로 BGE-M3 ONNX int8(570MB, 첫 실행 때 내려받음) + SQLite + 메모리 인덱스로 동작합니다.
-OpenAI 임베딩으로 만든 `data/` 와는 인덱스가 따로 만들어지므로 `run --stages embed,index` 를 다시 실행해야 합니다.
-torch 기반 BGE-M3·리랭커는 `requirements-ml.txt` 가 필요합니다.
-
-### PostgreSQL + Qdrant
-
-```powershell
-docker compose up -d                         # PostgreSQL 16 + Qdrant
-# .env: DOCSTORE_BACKEND=postgres, DATABASE_URL=postgresql://dart:dart@localhost:5432/dart
-#       INDEX_BACKEND=qdrant, QDRANT_URL=http://localhost:6333
-python -m dart_rag run --stages index,wiki --force
-```
-
-### API 보호
-
-- `API_ACCESS_TOKEN` 을 설정하면 `/ask`, `/search`, `/feedback` 에 `X-Access-Token` 헤더가 필요합니다.
-- `/ask` 는 IP당 분당 `ASK_RATE_PER_MIN`(기본 6)회로 제한됩니다.
-- 응답 `status`: `answered` / `no_evidence` / `needs_clarification` / `extractive_fallback`
+- **PostgreSQL + Qdrant**: `docker compose up -d` 후 `.env` 에 `DOCSTORE_BACKEND=postgres`, `DATABASE_URL=postgresql://dart:dart@localhost:5432/dart`, `INDEX_BACKEND=qdrant`, `QDRANT_URL=http://localhost:6333` 을 넣고 `python -m dart_rag run --stages index,wiki --force`.
+- **BGE-M3 로컬 임베딩**: `scripts\setup_windows.ps1` 실행 (`.env.local.example` 참고). OpenAI 임베딩으로 만든 `data/` 와 호환되지 않아 `run --stages embed,index` 를 다시 실행해야 합니다.

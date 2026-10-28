@@ -38,6 +38,7 @@ def test_docstore_contract(tmp_path, backend):
 
 @pytest.mark.parametrize("backend", BACKENDS)
 def test_end_to_end_with_docstore(tmp_path, backend):
+    pytest.importorskip("qdrant_client")          # requirements-optional.txt
     s = build_sample(tmp_path, "qdrant", backend)
     svc = RAGService(s)
     r = svc.retrieve("2023년 보통주 1주당 배당금은?", k=3)

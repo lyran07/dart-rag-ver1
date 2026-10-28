@@ -43,7 +43,7 @@ mkdir -p "$DART_DATA_ROOT" "$SCRATCH" "$HF_HOME"
 if [[ ! -x "$VENV/bin/python" ]]; then
   python3 -m venv "$VENV"
   "$VENV/bin/pip" install -U pip
-  "$VENV/bin/pip" install -r requirements.txt -r requirements-ml.txt
+  "$VENV/bin/pip" install -r requirements.txt -r requirements-optional.txt -r requirements-ml.txt
 fi
 PY="$VENV/bin/python"
 nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv || true

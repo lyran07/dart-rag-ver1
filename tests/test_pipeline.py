@@ -86,6 +86,8 @@ def test_embeddings_roundtrip_with_sparse(tmp_path):
 
 @pytest.mark.parametrize("backend", ["memory", "qdrant"])
 def test_index_backends_agree(tmp_path, backend):
+    if backend == "qdrant":
+        pytest.importorskip("qdrant_client")      # requirements-optional.txt
     from dart_rag.service import RAGService
     s = build_sample(tmp_path, backend)
     r = RAGService(s).retrieve("2023년 보통주 1주당 배당금은?", k=3)

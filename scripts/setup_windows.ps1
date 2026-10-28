@@ -51,10 +51,10 @@ if (-not (Test-Path $VenvPy)) {
     Step "가상환경(.venv) 이미 있음"
 }
 
-# 2) 패키지 (requirements.txt 에 onnxruntime·tokenizers 포함)
+# 2) 패키지 (onnxruntime·tokenizers 는 requirements-optional.txt)
 Step "패키지 설치"
 Run $VenvPy @("-m", "pip", "install", "--upgrade", "pip", "-q")
-Run $VenvPy @("-m", "pip", "install", "-r", "requirements.txt", "-q")
+Run $VenvPy @("-m", "pip", "install", "-r", "requirements.txt", "-r", "requirements-optional.txt", "-q")
 
 # 3) .env
 if (-not (Test-Path ".env")) {

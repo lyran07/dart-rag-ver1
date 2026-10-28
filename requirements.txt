@@ -1,14 +1,10 @@
-# 코어 (노트북 CPU 포함 어디서나). torch 불필요 — hashing/openai 임베더, Qdrant 로컬 모드로 동작
+# 기본 구성 (OpenAI 임베딩 + SQLite + 메모리 인덱스). 웹사이트 실행에 필요한 것만.
 requests>=2.31
 beautifulsoup4>=4.12
 lxml>=5.0
 numpy>=1.26
 pyyaml>=6.0
 python-dotenv>=1.0
-openai>=1.40            # 모든 LLM 제공자(OpenAI 호환) + OpenAI 임베딩
-qdrant-client>=1.10
-psycopg[binary]>=3.1   # PostgreSQL DocStore
-fastapi>=0.110          # API 서버 (선택)
+openai>=1.40            # GPT-6 Luna · Gemini(OpenAI 호환) · OpenAI 임베딩
+fastapi>=0.110          # API 서버 + 웹 화면
 uvicorn>=0.29
-onnxruntime>=1.17      # bge-m3-onnx 임베더 (torch 없이 CPU, 서비스 배포 기본값)
-tokenizers>=0.15       # bge-m3-onnx 토크나이저

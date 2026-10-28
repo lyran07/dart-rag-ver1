@@ -1,0 +1,5 @@
+# 선택 구성. 기본 실행(requirements.txt)에는 필요 없음.
+qdrant-client>=1.10     # INDEX_BACKEND=qdrant
+psycopg[binary]>=3.1    # DOCSTORE_BACKEND=postgres
+onnxruntime>=1.17       # EMBED_PROVIDER=bge-m3-onnx (torch 없이 CPU)
+tokenizers>=0.15        # bge-m3-onnx 토크나이저

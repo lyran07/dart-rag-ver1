@@ -219,5 +219,12 @@ data/               저장소 미포함 → Releases 의 data.zip
 
 ## 선택 구성
 
-- **PostgreSQL + Qdrant**: `docker compose up -d` 후 `.env` 에 `DOCSTORE_BACKEND=postgres`, `DATABASE_URL=postgresql://dart:dart@localhost:5432/dart`, `INDEX_BACKEND=qdrant`, `QDRANT_URL=http://localhost:6333` 을 넣고 `python -m dart_rag run --stages index,wiki --force`.
-- **BGE-M3 로컬 임베딩**: `scripts\setup_windows.ps1` 실행 (`.env.local.example` 참고). OpenAI 임베딩으로 만든 `data/` 와 호환되지 않아 `run --stages embed,index` 를 다시 실행해야 합니다.
+기본 실행에는 `requirements.txt` 만 있으면 됩니다. 아래 구성을 쓸 때만 추가로 설치합니다.
+
+| 파일 | 내용 |
+|---|---|
+| `requirements-optional.txt` | Qdrant, PostgreSQL, BGE-M3 ONNX(torch 없이 CPU) |
+| `requirements-ml.txt` | torch 기반 BGE-M3·e5 임베딩, 리랭커 (수 GB) |
+
+- **PostgreSQL + Qdrant**: `pip install -r requirements-optional.txt`, `docker compose up -d` 후 `.env` 에 `DOCSTORE_BACKEND=postgres`, `DATABASE_URL=postgresql://dart:dart@localhost:5432/dart`, `INDEX_BACKEND=qdrant`, `QDRANT_URL=http://localhost:6333` 을 넣고 `python -m dart_rag run --stages index,wiki --force`.
+- **BGE-M3 로컬 임베딩**: `scripts\setup_windows.ps1` 실행 (optional 패키지까지 설치) (`.env.local.example` 참고). OpenAI 임베딩으로 만든 `data/` 와 호환되지 않아 `run --stages embed,index` 를 다시 실행해야 합니다.

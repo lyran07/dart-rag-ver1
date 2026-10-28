@@ -7,6 +7,7 @@
   python scripts/eval_qa.py --answer auto                   답변 정확도 · 근거 · 형식 · 시간 · 비용
   python scripts/eval_qa.py --answer auto agent rag         모드 비교
   옵션: --types fact compare (유형 일부만)  --limit 5  -k 5  --workers 3 (답변 평가 동시 실행)
+        --rpm 12 (Gemini 라우터 호출을 분당 12회로 제한. 무료 등급 한도가 분당 15회라서)
 
 결과: eval/results/<시각>_<측정>.md (요약표) + .json (문항별 상세)
 """
@@ -31,6 +32,31 @@ import yaml  # noqa: E402
 TYPES = ["fact", "synonym", "concept", "compare", "trend", "cause", "negative"]
 NO_ANSWER_HINTS = ["보유", "없습니다", "없어", "없다", "찾지 못", "확인되지", "확인할 수 없", "제공되지", "존재하지 않",
                    "포함되어 있지 않", "포함돼 있지 않"]
+
+
+class Pacer:
+    """분당 호출 수 제한 (Gemini 무료 등급: 분당 15회). 여러 스레드에서 같이 써도 간격을 지킨다."""
+
+    def __init__(self, rpm: float | None):
+        import threading
+        self.gap = 60.0 / rpm if rpm else 0.0
+        self.next_at = 0.0
+        self.lock = threading.Lock()
+
+    def wait(self):
+        if not self.gap:
+            return
+        with self.lock:
+            now = time.monotonic()
+            at = max(now, self.next_at)
+            self.next_at = at + self.gap
+        if at > now:
+            time.sleep(at - now)
+
+
+def retry_after(msg: str, default: float = 30.0) -> float:
+    m = re.search(r"retry in ([\d.]+)s", msg)
+    return float(m.group(1)) + 1 if m else default
 
 
 # ------------------------------------------------------------------ 채점 도우미
@@ -124,13 +150,27 @@ def run_check(svc, qs) -> tuple[list[str], dict]:
 
 
 # ------------------------------------------------------------------ 2. 경로·회사·기간 인식
-def run_route(svc, qs, which: str) -> tuple[list[str], dict]:
+def run_route(svc, qs, which: str, pacer: Pacer) -> tuple[list[str], dict]:
+    from dart_rag.agent.llm import QuotaExhausted
     router = svc.rule_router if which == "rules" else svc.make_llm_router(which)
     rows, agg = [], defaultdict(lambda: defaultdict(int))
-    for it in qs:
-        t0 = time.perf_counter()
-        d = router.decide(it["q"])
+    for i, it in enumerate(qs, 1):
+        for attempt in range(4):
+            if which != "rules":
+                pacer.wait()
+            t0 = time.perf_counter()
+            try:
+                d = router.decide(it["q"])
+                break
+            except QuotaExhausted as e:          # 분당 한도 → 안내된 시간만큼 쉬고 다시 (시간에는 넣지 않음)
+                wait = retry_after(str(e))
+                print(f"  [{which}] 한도 초과 → {wait:.0f}초 대기 후 재시도", flush=True)
+                time.sleep(wait)
+        else:
+            raise RuntimeError(f"{which} 라우터 한도 초과가 계속됩니다")
         sec = time.perf_counter() - t0
+        if which != "rules":
+            print(f"  [{which} {i}/{len(qs)}] {d.route:6s} {it['q']}", flush=True)
         got_c = sorted(c["corp_name"] for c in d.companies)
         r_ok = d.route in it["route"]
         c_ok = got_c == sorted(it.get("corps") or [])
@@ -206,7 +246,9 @@ def run_retrieval(svc, qs, k: int, channel_sets: list[list[str]]) -> tuple[list[
 
 
 # ------------------------------------------------------------------ 4. 답변
-def _ask(svc, it, mode):
+def _ask(svc, it, mode, pacer: Pacer | None = None):
+    if pacer is not None and mode == "auto":
+        pacer.wait()
     t0 = time.perf_counter()
     try:
         a = svc.ask(it["q"], mode=mode)
@@ -230,19 +272,21 @@ def _ask(svc, it, mode):
             "format_ok": bool(text.strip()) and (a.status != "answered" or bool(a.sources)),
             "route": a.plan.get("route") or a.plan.get("mode"), "escalated": a.plan.get("escalated"),
             "rounds": a.plan.get("rounds"), "usd": usage.get("usd"), "sec": round(sec, 2), "llm": a.llm,
+            "router": (a.plan.get("decision") or {}).get("router"),
+            "router_fallback": any("규칙 라우터" in n for n in a.plan.get("router_notes") or []),
             "answer": text[:600]}
 
 
-def run_answer(svc, qs, modes: list[str], workers: int) -> tuple[list[str], dict]:
+def run_answer(svc, qs, modes: list[str], workers: int, pacer: Pacer) -> tuple[list[str], dict]:
     lines, detail = ["## 답변 평가", ""], {}
     for mode in modes:
         if workers > 1:
             with ThreadPoolExecutor(max_workers=workers) as ex:
-                rows = list(ex.map(lambda it: _ask(svc, it, mode), qs))
+                rows = list(ex.map(lambda it: _ask(svc, it, mode, pacer), qs))
         else:
             rows = []
             for i, it in enumerate(qs, 1):
-                rows.append(_ask(svc, it, mode))
+                rows.append(_ask(svc, it, mode, pacer))
                 r = rows[-1]
                 print(f"  [{mode} {i}/{len(qs)}] {'✔' if r['correct'] else '✘'} {r['sec']:5.1f}s "
                       f"{r.get('route') or ''}{' →agent' if r.get('escalated') else ''} {it['q']}", flush=True)
@@ -270,7 +314,9 @@ def run_answer(svc, qs, modes: list[str], workers: int) -> tuple[list[str], dict
         usd = [r["usd"] for r in rows if r.get("usd") is not None]
         fmt = sum(1 for r in rows if r.get("format_ok"))
         errs = [r for r in rows if r.get("error")]
+        fb = sum(1 for r in rows if r.get("router_fallback"))
         lines += ["", f"- 형식 준수율 {pct(fmt, len(rows))} · 오류 {len(errs)}건"
+                  + (f" · LLM 라우터 대신 규칙 라우터로 처리 {fb}건 (한도·시간 초과)" if mode == "auto" else "")
                   + (f" · LLM 비용 합계 ${sum(usd):.4f} (질문당 ${sum(usd) / len(usd):.5f})" if usd else ""), ""]
         wrong = [r for r in rows if not r["correct"]]
         if wrong:
@@ -294,6 +340,7 @@ def main():
     ap.add_argument("--limit", type=int)
     ap.add_argument("-k", type=int, default=5)
     ap.add_argument("--workers", type=int, default=1)
+    ap.add_argument("--rpm", type=float, default=12, help="LLM 라우터 분당 호출 상한 (0 이면 제한 없음)")
     ap.add_argument("--label", default="")
     a = ap.parse_args()
     if not (a.check or a.route is not None or a.retrieval or a.answer):
@@ -301,6 +348,7 @@ def main():
 
     from dart_rag.service import RAGService
     svc = RAGService()
+    pacer = Pacer(a.rpm)
     qs = load(a)
     out, detail, parts = [f"# 질의응답 평가 {datetime.now():%Y-%m-%d %H:%M} {a.label}".strip(), "",
                           f"평가셋 {a.file} · {len(qs)}문항", ""], {}, []
@@ -310,7 +358,7 @@ def main():
         detail["check"] = d
         parts.append("check")
     for which in a.route or []:
-        ls, d = run_route(svc, qs, which)
+        ls, d = run_route(svc, qs, which, pacer)
         out += ls + [""]
         detail[f"route_{which}"] = d
         parts.append(f"route-{which}")
@@ -320,7 +368,7 @@ def main():
         detail["retrieval"] = d
         parts.append("retrieval")
     if a.answer:
-        ls, d = run_answer(svc, qs, a.answer, a.workers)
+        ls, d = run_answer(svc, qs, a.answer, a.workers, pacer)
         out += ls
         detail["answer"] = d
         parts.append("answer-" + "-".join(a.answer))

@@ -1,0 +1,341 @@
+# 질의응답 평가셋 (2026-10-28 기준 보유 데이터: SK하이닉스·현대자동차 2025.03~2026.06, 삼성전자 2022.12~2026.06)
+# 정답 숫자는 data/wiki 의 원문 표에서 확인한 값이다 (scripts/eval_qa.py --check 로 원문 존재 여부 재검사).
+#
+# 항목
+#   q        질문
+#   type     fact(원문 어휘) / synonym(동의어) / concept(개념→항목) / compare(여러 회사) / trend(여러 기간)
+#            / cause(원인·전망·서술) / negative(보유하지 않은 회사·기간 → 답하지 않아야 함)
+#   route    허용 경로 목록 (wiki / hybrid / vector / agent)
+#   corps    질문 속 회사 (라우터 회사 인식 채점)
+#   periods  회사별 기대 기간 (라우터 기간 인식 채점, 생략하면 채점 안 함)
+#   expect   검색 정답 그룹: section(하나라도 포함) + corp + period. 모든 그룹이 상위 k 안에 있어야 성공
+#   answer   답변 정답 숫자: 바깥 목록 = 모두 필요, 안쪽 목록 = 그중 하나면 됨
+#   unit     answer 단위. 백만원이면 "131.9조원" 같은 환산 표기도 1% 오차 안에서 정답 처리
+#   keywords 답변에 들어가야 할 단어 (바깥 = 모두, 안쪽 = 하나면 됨)
+#   no_answer true 면 수치를 지어내지 않고 "보유하지 않음/찾지 못함"으로 답해야 정답
+
+# ---------------------------------------------------------------- fact
+- q: SK하이닉스 2026년 반기 연결 매출액은?
+  type: fact
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["131,895,033"]]
+  unit: 백만원
+- q: 삼성전자 2026년 1분기 영업이익은?
+  type: fact
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.03"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.03"}]
+  answer: [["57,232,797"]]
+  unit: 백만원
+- q: 현대자동차 2025년 3분기 누적 매출액은?
+  type: fact
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2025.09"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2025.09"}]
+  answer: [["139,415,886"]]
+  unit: 백만원
+- q: SK하이닉스 2026년 반기 보통주 주당 현금배당금은?
+  type: fact
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [배당에 관한 사항], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["750"]]
+  unit: 원
+- q: 현대차 최대주주는 누구야?
+  type: fact
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.06"]}
+  expect: [{section: [주주에 관한 사항], corp: 현대자동차}]
+  keywords: [[현대모비스]]
+- q: 삼성전자 최대주주는?
+  type: fact
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [주주에 관한 사항], corp: 삼성전자}]
+  keywords: [[삼성생명]]
+- q: 삼성전자 2026년 반기 기준 직원 수는?
+  type: fact
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [임원 및 직원], corp: 삼성전자, period: "2026.06"}]
+  answer: [["129,200"]]
+  unit: 명
+- q: 현대자동차 2026년 반기 기준 자기주식 수는?
+  type: fact
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.06"]}
+  expect: [{section: [주식의 총수], corp: 현대자동차, period: "2026.06"}]
+  answer: [["3,556,032", "2,341,700"]]
+  unit: 주
+- q: SK하이닉스 2026년 반기 감사의견은?
+  type: fact
+  route: [wiki, hybrid]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [감사의견, 외부감사], corp: SK하이닉스, period: "2026.06"}]
+  keywords: [[적정]]
+
+# ---------------------------------------------------------------- synonym (질문 단어 ≠ 원문 단어)
+- q: 현대차 2026년 반기 빚은 얼마나 돼?
+  type: synonym
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.06"}]
+  answer: [["259,095,722"]]
+  unit: 백만원
+- q: 삼전 2026년 반기 영업손익은?
+  type: synonym
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"}]
+  answer: [["146,725,209"]]
+  unit: 백만원
+- q: 하이닉스 2026년 반기 순익은 얼마야?
+  type: synonym
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["134,268,502", "134,150,412"]]
+  unit: 백만원
+- q: 삼성전자 2026년 반기에 R&D에 얼마 썼어?
+  type: synonym
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [연구개발], corp: 삼성전자, period: "2026.06"}]
+  answer: [["27,362,722", "27,362,006"]]
+  unit: 백만원
+- q: 현대차 2026년 반기 매출 대비 R&D 비중은?
+  type: synonym
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.06"]}
+  expect: [{section: [연구개발], corp: 현대자동차, period: "2026.06"}]
+  answer: [["2.5"]]
+  unit: "%"
+- q: 삼전 2026년 반기 자사주 몇 주 갖고 있어?
+  type: synonym
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [주식의 총수], corp: 삼성전자, period: "2026.06"}]
+  answer: [["82,086,705"]]
+  unit: 주
+
+# ---------------------------------------------------------------- concept (개념 → 공시 항목)
+- q: 삼성전자 2026년 반기 인건비 부담은 어느 정도야?
+  type: concept
+  route: [wiki, hybrid, vector]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [임원 및 직원, 보수], corp: 삼성전자, period: "2026.06"}]
+  answer: [["8,012,080"]]
+  unit: 백만원
+- q: SK하이닉스 2026년 반기 재무 건전성은 어때?
+  type: concept
+  route: [wiki, vector]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["86,168,986", "262,693,228", "348,862,214"]]
+  unit: 백만원
+- q: 현대차 2026년 반기 주주환원은 어느 수준이야?
+  type: concept
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.06"]}
+  expect: [{section: [배당에 관한 사항], corp: 현대자동차, period: "2026.06"}]
+  answer: [["5,000", "27.0"]]
+  unit: 원
+- q: SK하이닉스 2026년 반기 환율 위험은 어느 정도야?
+  type: concept
+  route: [wiki, vector]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2026.06"]}
+  expect: [{section: [위험관리], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["4,751,654"]]
+  unit: 백만원
+- q: 삼성전자 2026년 반기 생산설비 가동 상황은?
+  type: concept
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [원재료 및 생산설비], corp: 삼성전자, period: "2026.06"}]
+  keywords: [[가동률]]
+
+# ---------------------------------------------------------------- compare (여러 회사)
+- q: 삼성전자와 SK하이닉스 2026년 반기 영업이익 비교해줘
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"},
+           {section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["146,725,209"], ["98,152,891"]]
+  unit: 백만원
+- q: 현대차와 삼성전자 2026년 반기 매출액 비교
+  type: compare
+  route: [wiki]
+  corps: [현대자동차, 삼성전자]
+  periods: {현대자동차: ["2026.06"], 삼성전자: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.06"},
+           {section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2026.06"}]
+  answer: [["95,154,214"], ["305,372,914"]]
+  unit: 백만원
+- q: 삼성전자, SK하이닉스, 현대자동차의 2026년 반기 보통주 주당 배당금을 비교해줘
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, SK하이닉스, 현대자동차]
+  periods: {삼성전자: ["2026.06"], SK하이닉스: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [배당에 관한 사항], corp: 삼성전자, period: "2026.06"},
+           {section: [배당에 관한 사항], corp: SK하이닉스, period: "2026.06"},
+           {section: [배당에 관한 사항], corp: 현대자동차, period: "2026.06"}]
+  answer: [["746"], ["750"], ["5,000"]]
+  unit: 원
+- q: SK하이닉스와 현대차 2026년 반기 부채총계 비교
+  type: compare
+  route: [wiki]
+  corps: [SK하이닉스, 현대자동차]
+  periods: {SK하이닉스: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"},
+           {section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.06"}]
+  answer: [["86,168,986"], ["259,095,722"]]
+  unit: 백만원
+- q: 삼성전자와 현대자동차 2026년 반기 연구개발비 비교해줘
+  type: compare
+  route: [wiki]
+  corps: [삼성전자, 현대자동차]
+  periods: {삼성전자: ["2026.06"], 현대자동차: ["2026.06"]}
+  expect: [{section: [연구개발], corp: 삼성전자, period: "2026.06"},
+           {section: [연구개발], corp: 현대자동차, period: "2026.06"}]
+  answer: [["27,362,722", "27,362,006"], ["2,388,938"]]
+  unit: 백만원
+
+# ---------------------------------------------------------------- trend (여러 기간)
+- q: SK하이닉스 2025년 반기와 2026년 반기 매출 비교
+  type: trend
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2025.06", "2026.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2025.06"},
+           {section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.06"}]
+  answer: [["39,871,093"], ["131,895,033"]]
+  unit: 백만원
+- q: 삼성전자 2023년, 2024년, 2025년 반기 영업이익 추이
+  type: trend
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2023.06", "2024.06", "2025.06"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2023.06"},
+           {section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2024.06"},
+           {section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2025.06"}]
+  answer: [["1,308,725"], ["17,049,887"], ["11,361,329"]]
+  unit: 백만원
+- q: 현대차 2025년 1분기와 2026년 1분기 영업이익 비교
+  type: trend
+  route: [wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2025.03", "2026.03"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2025.03"},
+           {section: [요약재무정보, 연결재무제표], corp: 현대자동차, period: "2026.03"}]
+  answer: [["3,633,609"], ["2,514,686"]]
+  unit: 백만원
+- q: 삼성전자 2022년과 2023년 연간 매출액 비교
+  type: trend
+  route: [wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2022.12", "2023.12"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2022.12"},
+           {section: [요약재무정보, 연결재무제표], corp: 삼성전자, period: "2023.12"}]
+  answer: [["302,231,360"], ["258,935,494"]]
+  unit: 백만원
+- q: SK하이닉스 2025년 1분기와 2026년 1분기 영업이익 비교
+  type: trend
+  route: [wiki]
+  corps: [SK하이닉스]
+  periods: {SK하이닉스: ["2025.03", "2026.03"]}
+  expect: [{section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2025.03"},
+           {section: [요약재무정보, 연결재무제표], corp: SK하이닉스, period: "2026.03"}]
+  answer: [["7,440,504"], ["37,610,283"]]
+  unit: 백만원
+
+# ---------------------------------------------------------------- cause (원인·전망·서술)
+- q: 삼성전자 2023년 실적이 왜 나빠졌어?
+  type: cause
+  route: [vector, agent, wiki]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2023.12"]}
+  expect: [{section: [경영진단, 사업의 개요], corp: 삼성전자, period: "2023.12"}]
+  keywords: [[반도체, 메모리, 수요, 경기]]
+- q: 현대차 2026년 반기 환율 변동이 실적에 미치는 영향은?
+  type: cause
+  route: [vector, agent, wiki]
+  corps: [현대자동차]
+  periods: {현대자동차: ["2026.06"]}
+  expect: [{section: [위험관리], corp: 현대자동차, period: "2026.06"}]
+  keywords: [[환율]]
+- q: SK하이닉스 HBM 관련 내용 알려줘
+  type: cause
+  route: [hybrid, vector, agent]
+  corps: [SK하이닉스]
+  expect: [{section: [사업의 개요, 주요 제품, 연구개발], corp: SK하이닉스}]
+  keywords: [[HBM]]
+- q: 현대자동차 전기차 전략은 어떻게 돼?
+  type: cause
+  route: [vector, agent, hybrid]
+  corps: [현대자동차]
+  expect: [{section: [사업의 개요, 연구개발, 주요 제품], corp: 현대자동차}]
+  keywords: [[전기차, 전동화, EV]]
+- q: 삼성전자 2026년 반기 기준 진행 중인 소송이나 우발부채 있어?
+  type: cause
+  route: [wiki, hybrid, vector, agent]
+  corps: [삼성전자]
+  periods: {삼성전자: ["2026.06"]}
+  expect: [{section: [우발부채], corp: 삼성전자, period: "2026.06"}]
+  keywords: [[소송, 우발]]
+- q: SK하이닉스 원재료 가격은 어떤 요인에 영향을 받아?
+  type: cause
+  route: [wiki, vector, hybrid]
+  corps: [SK하이닉스]
+  expect: [{section: [원재료 및 생산설비], corp: SK하이닉스}]
+  keywords: [[수급, Wafer, 웨이퍼]]
+
+# ---------------------------------------------------------------- negative (답하지 않아야 함)
+- q: LG전자 매출 알려줘
+  type: negative
+  route: [agent, wiki, hybrid, vector]
+  corps: []
+  no_answer: true
+- q: 현대자동차 2023년 매출은?
+  type: negative
+  route: [agent, wiki, hybrid, vector]
+  corps: [현대자동차]
+  no_answer: true
+- q: 삼성전자 2027년 반기 영업이익은?
+  type: negative
+  route: [agent, wiki, hybrid, vector]
+  corps: [삼성전자]
+  no_answer: true
+- q: SK하이닉스 2024년 사업보고서 기준 배당금은?
+  type: negative
+  route: [agent, wiki, hybrid, vector]
+  corps: [SK하이닉스]
+  no_answer: true
+- q: 카카오 최대주주는 누구야?
+  type: negative
+  route: [agent, wiki, hybrid, vector]
+  corps: []
+  no_answer: true

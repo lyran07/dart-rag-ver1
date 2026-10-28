@@ -19,7 +19,7 @@ from concurrent.futures import TimeoutError as FutureTimeout
 from datetime import date
 
 from ..agent.compare import check_and_fix
-from ..agent.llm import QuotaExhausted, parse_final_json
+from ..agent.llm import AgentLLMError, QuotaExhausted, parse_final_json
 from ..agent.loop import render, verify_evidence
 from ..agent.prompts import ANSWER_SCHEMA
 from ..domain import Answer
@@ -37,6 +37,10 @@ SINGLE_SYSTEM = """당신은 한국 상장회사 DART 공시 분석가입니다.
   (subject=회사명, item=항목명, period=기준월 예: 2026.06, value=원문 숫자, unit=단위). 같은 항목은 같은 item·unit 으로 씁니다.
   대소·순위·증감 결론은 값을 크기순으로 정렬해 확인한 뒤 씁니다. 비교가 아닌 질문은 comparison 을 빈 배열로 둡니다.
 - 최종 출력은 JSON 객체 하나: {"conclusion", "key_points", "interpretation", "evidence", "needs_clarification", "comparison"}"""
+
+
+TRUNCATED_RETRY = ("직전 답변이 출력 길이 제한에 걸려 JSON 이 잘렸습니다. key_points 는 최대 5개, interpretation 은 최대 3개, "
+                   "각 1문장으로 줄이고 comparison 은 결론에 필요한 값만 넣어 같은 JSON 형식으로 다시 출력하세요.")
 
 
 _PARTICLE = re.compile(r"(은|는|이|가|을|를|의|랑|이랑|과|와|도|만|에|에서|으로|로|야|요|해줘|알려줘)$")
@@ -178,7 +182,17 @@ class AutoAnswerer:
         today = (self.today or date.today()).isoformat()
         conv = self.answer_llm.start(SINGLE_SYSTEM, f"오늘 날짜: {today}\n질문: {question}\n\n[근거]\n" + "\n\n".join(parts))
         st = self.answer_llm.step(conv, None, ANSWER_SCHEMA, allow_tools=False)
-        return parse_final_json(st.final_text), st.usage, st.seconds, conv
+        try:
+            return parse_final_json(st.final_text), st.usage, st.seconds, conv
+        except AgentLLMError:
+            # 출력 상한에 걸려 JSON 이 잘림 → 같은 대화에서 1회, 더 짧게 다시 쓰게 한다
+            self.answer_llm.add_user(conv, TRUNCATED_RETRY)
+            st2 = self.answer_llm.step(conv, None, ANSWER_SCHEMA, allow_tools=False)
+            usage = {k: (st.usage.get(k) or 0) + (st2.usage.get(k) or 0) for k in set(st.usage) | set(st2.usage)
+                     if k != "usd"}
+            usage["usd"] = (None if st.usage.get("usd") is None or st2.usage.get("usd") is None
+                            else round(st.usage["usd"] + st2.usage["usd"], 6))
+            return parse_final_json(st2.final_text), usage, st.seconds + st2.seconds, conv
 
     # ------------------------------------------------------------------
     def ask(self, question: str) -> Answer:

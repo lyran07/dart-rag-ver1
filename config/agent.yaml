@@ -56,7 +56,7 @@ auto:
   rules_first: true          # 규칙 라우터가 회사·기간·섹션을 다 잡아 wiki 로 판정하면 LLM 라우터 생략
   answer_backend: responses  # 단일 답변 LLM (responses = Luna)
   answer_reasoning: none     # 단일 답변은 속도 우선
-  answer_max_output_tokens: 1200
+  answer_max_output_tokens: 2000   # 1200 이면 원인 질문 + comparison 에서 JSON 이 잘림 (잘리면 1회 짧게 재작성)
   escalate_to_agent: true    # 단일 답변이 근거 부족이면 에이전트로 전환
   wiki_page_chars: 8000      # 위키 페이지 1개당 LLM 에 넣는 최대 글자
   context_chars: 16000       # 단일 답변 근거 총량 상한

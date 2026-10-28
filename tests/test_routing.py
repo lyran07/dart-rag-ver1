@@ -155,3 +155,14 @@ def test_wiki_paths_are_relative(tmp_path: Path):
     assert w.rel(r"C:\Users\x\proj\data\wiki\SK하이닉스\a.md") == "SK하이닉스/a.md"
     assert w.rel(tmp_path / "wiki" / "삼성전자" / "b.md") == "삼성전자/b.md"
     assert w.abs("삼성전자/b.md") == tmp_path / "wiki" / "삼성전자" / "b.md"
+
+
+def test_auto_retries_once_when_json_truncated():
+    class Trunc(FakeLLM):
+        def add_user(self, conv, text):
+            conv["u"] += "\n" + text
+    llm = Trunc(['{"conclusion": "잘린 출', ok_answer("wiki:SK하이닉스2026.06")])
+    auto = make_auto([])
+    auto.answer_llm = llm
+    a = auto.ask("SK하이닉스 2026년 반기 연결 매출액은?")
+    assert a.status == "answered" and llm.calls == 2 and a.plan["mode"] == "auto"

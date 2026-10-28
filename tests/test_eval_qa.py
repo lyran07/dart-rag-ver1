@@ -32,6 +32,7 @@ def test_conclusion_checks():
     it2 = {"corps": ["삼성전자", "SK하이닉스"], "expect_max": "삼성전자"}
     assert conclusion_checks(it2, "매출이 더 큰 곳은 삼성전자입니다.")["expect_max"]
     assert conclusion_checks(it2, "삼성전자가 SK하이닉스보다 더 크다.")["expect_max"]
+    assert conclusion_checks(it2, "매출은 삼성전자가 더 큽니다.")["expect_max"]
     assert not conclusion_checks(it2, "SK하이닉스가 삼성전자보다 더 크다.")["expect_max"]
     assert conclusion_checks({"expect_direction": ["증가", "감소"]}, "2024년 증가했다가 2025년 감소했다")["expect_direction"]
     assert not conclusion_checks({"expect_direction": ["증가", "감소"]}, "2024년 감소했다가 2025년 증가했다")["expect_direction"]

@@ -1,0 +1,1716 @@
+{
+ "answer": {
+  "auto": [
+   {
+    "q": "SK하이닉스 2026년 반기 연결 매출액은?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000398,
+    "sec": 8.22,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 2026년 반기 연결 매출액은 제79기 반기 누계 기준 131,895,033백만원입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 요약연결재무정보에 제79기 반기 매출액이 131,895,033백만원으로 기재되어 있습니다.[1]\n- 제79기 반기 포괄손익계산서 수치는 2026년 6월 30일까지의 누계 기준입니다.[1]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2026년 1분기 영업이익은?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000371,
+    "sec": 4.02,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자의 2026년 1분기 연결 영업이익은 57,232,797백만원입니다. [1]\n\n**주요 내용 (공시 확인 사항)**\n- 요약연결재무정보에서 제58기 2026년 1월~3월 영업이익은 57,232,797백만원으로 기재되어 있습니다. [1]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대자동차 2025년 3분기 누적 매출액은?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000387,
+    "sec": 4.39,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대자동차의 2025년 3분기 누적 연결 매출액은 139,415,886백만원입니다. [1]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제58기 3분기 매출액은 139,415,886백만원입니다.\n\n**해석**\n- 분기보고서의 제58기 3분기 누적 실적을 2025년 3분기 누적 매출액으로 해석했습니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 보통주 주당 현금배당금은?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000488,
+    "sec": 4.99,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 2026년 반기 보통주 주당 현금배당금은 합계 750원입니다. 제79기 1분기와 2분기에 각각 375원씩 배당을 결정했습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 제79기 반기 보통주 주당 현금배당금은 750원입니다.[1]\n- 제79기 1분기 배당은 주당 375원, 2분기 배당도 주당 375원입니다.[1]\n\n**해석**\n- 질문의 ‘2026년 반기’를 제79기 반기 기준으로 보아, 보고서의 반기 누계 750원이 각 분기 배당금의 합과 일치합니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대차 최대주주는 누구야?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000519,
+    "sec": 3.84,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대자동차의 최대주주는 현대모비스(주)입니다. 보고서 작성기준일 현재 현대모비스는 보통주 45,782,023주(22.36%)를 보유하고 있습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 현대자동차 반기보고서는 현대모비스(주)를 회사의 최대주주로 명시합니다.\n- 현대모비스의 보유 지분은 보통주 기준 45,782,023주(22.36%)입니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 최대주주는?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00065,
+    "sec": 5.07,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자 공시에서 최대주주 본인으로 기재된 주주는 삼성생명보험㈜입니다. 2026년 6월 30일 기준 삼성생명보험㈜의 최대주주는 삼성물산㈜으로 공시되어 있습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 반기보고서의 최대주주 주식소유 현황에서 삼성생명보험㈜을 ‘최대주주 본인’으로 기재했습니다.\n- 삼성생명보험㈜의 보통주 기말 보유량은 497,660,185주, 지분율은 8.51%입니다.\n- 공시는 삼성생명보험㈜의 최대주주(최대출자자)를 삼성물산㈜, 지분 19.34%로 기재했습니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2026년 반기 기준 직원 수는?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000517,
+    "sec": 4.03,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자의 2026년 반기 기준 직원 수는 129,200명입니다. [1]\n\n**주요 내용 (공시 확인 사항)**\n- 반기보고서 직원 현황의 합계 행에서 직원 합계는 129,200명으로 확인됩니다. [1]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대자동차 2026년 반기 기준 자기주식 수는?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000626,
+    "sec": 4.17,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대자동차의 2026년 반기보고서 기준 자기주식은 총 3,556,032주입니다. [1]\n\n**주요 내용 (공시 확인 사항)**\n- 보고서 작성기준일 현재 자기주식수는 보통주 2,341,700주, 우선주 1,214,332주이며, 합계는 3,556,032주입니다. [1]\n- 해당 수량 표의 단위는 주입니다. [1]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 감사의견은?",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00044,
+    "sec": 3.73,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 2026년 반기 감사의견은 적정의견입니다. 별도 감사보고서와 연결감사보고서 모두 적정의견으로 기재되어 있습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 제79기반기(당기) 감사보고서의 감사의견은 적정의견입니다.\n- 제79기반기(당기) 연결감사보고서의 감사의견도 적정의견입니다.\n- 감사인은 삼정회계법인입니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대차 2026년 반기 빚은 얼마나 돼?",
+    "type": "synonym",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000451,
+    "sec": 5.32,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대차의 2026년 반기 연결 기준 부채총계는 259,095,722백만원입니다. 별도 기준 부채총계는 27,684,425백만원입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 연결재무제표 기준 제59기 반기 부채총계는 259,095,722백만원입니다.\n- 별도재무제표 기준 제59기 반기 부채총계는 27,684,425백만원입니다.\n\n**해석**\n- ‘빚’을 공시의 부채총계로 해석했습니다. 연결 기준에는 종속회사가 포함되며, 별도 기준 수치와 범위가 다릅니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼전 2026년 반기 영업손익은?",
+    "type": "synonym",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000803,
+    "sec": 4.63,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자의 2026년 반기 연결 영업이익은 146,725,209백만원입니다. 별도 기준 영업이익은 134,646,738백만원입니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제58기 반기 누적(2026년 1월 1일~6월 30일) 영업이익은 146,725,209백만원입니다.[1]\n- 별도 기준 제58기 반기(2026년 1월~6월) 영업이익(손실)은 134,646,738백만원입니다.[2]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "하이닉스 2026년 반기 순익은 얼마야?",
+    "type": "synonym",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000394,
+    "sec": 3.81,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 2026년 반기 연결 기준 순이익은 제79기 반기 누계 134,268,502백만원입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 요약연결재무정보의 제79기 반기 연결총당기순이익은 134,268,502백만원입니다.\n- 포괄손익계산서 해당 부분은 2026년 6월 30일까지의 누계 기준입니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2026년 반기에 R&D에 얼마 썼어?",
+    "type": "synonym",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000442,
+    "sec": 5.35,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자는 2026년 제58기 반기 연결 누계 기준 연구개발비용 총계로 27,362,722백만원을 지출했습니다. 정부보조금 차감 후 연구개발비용 계 및 당기비용 처리액은 27,362,006백만원입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 제58기 반기 연구개발비용 총계는 27,362,722이며, 표의 단위는 백만원입니다.[1]\n- 같은 기간 정부보조금은 △716백만원이고, 정부보조금 차감 후 연구개발비용 계와 회계 처리상 연구개발비(비용)는 각각 27,362,006백만원입니다.[1]\n- 공시는 연결 누계기준이라고 명시합니다.[1]\n\n**해석**\n- 질문의 ‘R&D에 쓴 금액’을 정부보조금 차감 전 지출 총액으로 보면 27조 3,627억 2,200만원이며, 차감 후 당기비용 기준으로 보면 27조 3,620억 600만원입니다.[1]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대차 2026년 반기 매출 대비 R&D 비중은?",
+    "type": "synonym",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.000702,
+    "sec": 15.9,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대차의 2026년 상반기 연구개발비/매출액 비율은 공시 기준 2.5%입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 반기보고서의 연구개발비/매출액 비율은 2026년 상반기(제59기) 2.5%로 기재돼 있습니다.[1]\n- 해당 표의 연구개발비용 계는 2,388,938백만원이며, 비율 산식은 연구개발비용계÷당기매출액×100입니다.[1]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼전 2026년 반기 자사주 몇 주 갖고 있어?",
+    "type": "synonym",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000698,
+    "sec": 4.96,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자는 2026년 반기말 자기주식 보통주 82,086,705주를 보유하고 있습니다[1].\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 반기보고서의 자기주식 표에서 기말수량은 보통주 82,086,705주이며, 우선주 기말수량은 없습니다[1].\n- 자기주식 보유현황 표의 총계는 보통주 82,086,705주입니다[2].",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2026년 반기 인건비 부담은 어느 정도야?",
+    "type": "concept",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000956,
+    "sec": 6.41,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자 2026년 상반기 직원 급여 부담은 보고서상 연간급여총액 8,012,080(단위 미표시)이며, 1인 평균급여액은 63(단위 미표시)입니다[1]. 다만 이 표는 직원 급여 현황이고, 회사 전체 인건비를 급여 외 복리후생비·퇴직급여까지 포함해 집계한 수치는 근거에 없습니다.\n\n**주요 내용 (공시 확인 사항)**\n- 2026년 반기보고서 직원 현황의 합계 인원은 129,200명이고 평균 근속연수는 14.0년입니다[1].\n- 같은 표의 연간급여총액은 8,012,080, 1인평균급여액은 63으로 기재되어 있으며, 표에 단위가 표시되어 있지 않습니다[1].\n- 남성 연간급여총액은 6,375,921, 여성은 1,636,159로 기재되어 있습니다[2].\n\n**해석**\n- 보고서 표의 급여 총액만으로 보면 반기 직원 급여 규모는 약 8조원 수준으로 읽히지만, 원문에 단위가 표시되지 않아 단위를 확정할 수 없습니다.\n- 표의 급여 수치는 임원 보수나 급여 외 인건비 항목까지 포함한 회사 전체 인건비 총액이라고 단정할 수 없습니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 재무 건전성은 어때?",
+    "type": "concept",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000761,
+    "sec": 8.8,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기말 연결 기준으로 부채비율은 0.3280이며, 현금및현금성자산 등 87,957,923이 차입금 18,586,634보다 많아 순차입금비율은 부(-)의 비율로 공시됐습니다. 공시 수치상 차입금 부담과 자본구조는 양호한 편으로 해석할 수 있지만, 제공된 근거만으로 전반적인 재무 건전성을 모두 평가하기는 어렵습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 2026년 반기말 연결 기준 부채(A)는 86,168,986, 자본(B)은 262,693,228이며, 부채비율(A/B)은 0.3280입니다. 단위는 제공된 근거에 표시되어 있지 않습니다.[1]\n- 2026년 반기말 연결 기준 현금및현금성자산 등(C)은 87,957,923, 차입금(D)은 18,586,634이며, 순차입금비율은 0.00으로 표시됐습니다. 공시 설명은 순차입금비율이 부(-)의 비율이라 표시하지 않았다고 밝힙니다.[1]\n- 회사는 당반기말 현재 주요 차입금 계약상의 일정 수준 부채비율·담보채무비율 조건을 준수했다고 공시했습니다.[1]\n\n**해석**\n- 현금및현금성자산 등이 차입금을 웃돌고 부채비율이 0.3280이므로, 공시된 자본구조·차입금 지표만 보면 재무 부담이 크지 않은 편으",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대차 2026년 반기 주주환원은 어느 수준이야?",
+    "type": "concept",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 4,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000763,
+    "sec": 7.61,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대차의 2026년 제59기 상반기 주주환원은 배당 기준으로 보통주 주당 5,000원, 연결 현금배당성향 27.0% 수준입니다. 다만 공시된 상반기 배당 내역만으로는 자사주 매입·소각을 포함한 2026년 전체 총주주환원율을 확인할 수 없습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 제59기 상반기(2026년) 현금배당금 총액은 1,309,170백만원, 연결 현금배당성향은 27.0%입니다.[1]\n- 제59기 상반기 보통주 주당 현금배당금은 5,000원이며, 우선주는 5,000원입니다.[1]\n- 공시 주석에는 제59기 1분기와 2분기 배당금이 각각 654,585백만원(주당 2,500원)이라고 기재되어 있습니다.[1]\n- 회사는 당사 TSR을 (현금배당 총액+자기주식 매입 및 소각액)/지배주주귀속 당기순이익으로 산출한다고 밝히고, 2025~2027년 TSR 최소 35% 이상 목표를 제시했습니다.[1]\n\n**해석**\n- 배당성향 27.0%는 회사가 밝힌 배당성향 최소 25% 정책을 상회하는 수준입니다.[1]\n- 2026년 상반기에는 주당 2,500원의 분기배당이 두 차례 실시된 것으로 공시되어, 합산 주당 배당액이 5,000원입니다.[1]\n- 최소 35%",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 환율 위험은 어느 정도야?",
+    "type": "concept",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 5,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00079,
+    "sec": 9.53,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기 말 SK하이닉스의 환율 위험은 USD 순자산 노출이 커서 원화 대비 달러 환율 변동에 민감한 구조입니다. 공시상 환율이 10% 변동하면 연결 기준 법인세비용차감전순이익은 USD 영향만으로 ±4,751,654백만원 변동하는 민감도로 제시됐습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 당반기말 연결 기준 화폐성 외화자산·부채의 원화환산액은 USD 자산 73,800,740백만원, 부채 26,402,128백만원입니다.[1]\n- 당반기말 연결 기준 각 통화 환율이 10% 변동할 경우 법인세비용차감전순이익 영향은 USD 상승 시 4,751,654백만원, 하락 시 (4,751,654)백만원입니다.[1]\n- 같은 10% 환율변동 민감도는 JPY 상승 시 (118,394)백만원, CNY 상승 시 (24,550)백만원, EUR 상승 시 (65,110)백만원이며, 하락 시 각각 반대 방향입니다.[1]\n- 회사는 매출의 90% 이상이 USD로 발생하며 USD 수입이 지출보다 많은 구조라고 설명하고, 잔존 외화 현금흐름을 환리스크 관리 대상으로 삼고 있습니다.[1]\n- 환위험 관리는 자연적 헤지를 기본으로 하고 필요시 선물환 등 외부적 관리기법을 일부 시",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2026년 반기 생산설비 가동 상황은?",
+    "type": "concept",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 4,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000932,
+    "sec": 8.52,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자의 2026년 제58기 반기 가동률은 DX 부문 TV·모니터 등이 77.5%, 스마트폰 등이 84.1%였고, DS 메모리와 SDC 디스플레이 패널은 각각 100.0%, Harman 디지털 콕핏은 66.6%였습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- DX 부문 TV·모니터 등은 생산능력 28,240천대, 실제 생산 21,893천대, 가동률 77.5%였습니다.[1]\n- DX 부문 스마트폰 등은 생산능력 134,780천대, 실제 생산 113,317천대, 가동률 84.1%였습니다.[1]\n- DS 부문 메모리는 가동 가능 시간 43,440시간, 실제 가동 시간 43,440시간, 가동률 100.0%였습니다.[1]\n- SDC 디스플레이 패널은 가동 가능 시간 21,720시간, 실제 가동 시간 21,720시간, 가동률 100.0%였습니다.[1]\n- Harman 디지털 콕핏은 생산능력 4,966천개, 실제 생산 3,307천개, 가동률 66.6%였습니다.[1]\n- DS 메모리와 SDC 디스플레이 패널 사업은 24시간 3교대 작업을 했으며, 2026년 제58기 반기 가동일은 휴일 포함 총 181일이었습니다.[1]\n\n**해석**\n- 공시된 품목 중 DS 메모",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자와 SK하이닉스 2026년 반기 영업이익 비교해줘",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000754,
+    "sec": 6.36,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기 연결 기준 영업이익은 삼성전자 146,725,209백만원, SK하이닉스 98,152,891백만원으로 삼성전자가 48,572,318백만원 더 많습니다. 두 회사 모두 2026년 1월~6월 누계 기준입니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 요약연결재무정보의 제58기 2026년 1월~6월 영업이익은 146,725,209백만원입니다.[1]\n- SK하이닉스 요약연결재무정보의 제79기 반기 영업이익은 98,152,891백만원이며, 보고서 주석은 손익계산서가 2026년 6월 30일까지의 누계 기준이라고 명시합니다.[2]\n- 삼성전자 영업이익이 SK하이닉스보다 48,572,318백만원 많습니다. (두 공시 수치의 차이 계산)\n\n**해석**\n- 제시된 반기 연결 실적 기준으로 삼성전자의 영업이익이 SK하이닉스보다 높습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "현대차와 삼성전자 2026년 반기 매출액 비교",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000697,
+    "sec": 5.66,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준으로 2026년 반기 매출액은 삼성전자 305,372,914백만원, 현대차 95,154,214백만원입니다. 삼성전자가 210,218,700백만원 더 많습니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 현대차 연결 제59기 반기 매출액은 95,154,214백만원입니다.[1]\n- 삼성전자 연결 제58기 2026년 1월~6월 매출액은 305,372,914백만원입니다.[2]\n- 두 회사 모두 연결 기준·백만원 단위의 매출액을 비교했습니다.\n\n**해석**\n- 공시된 연결 반기 매출액을 단순 비교하면 삼성전자 매출액이 현대차보다 210,218,700백만원 많습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "삼성전자, SK하이닉스, 현대자동차의 2026년 반기 보통주 주당 배당금을 비교해줘",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": false,
+    "score": {
+     "values": [
+      true,
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": false,
+      "expect_min": true
+     },
+     "conclusion_ok": false,
+     "correct": false
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 1,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.001142,
+    "sec": 14.44,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기보고서 기준 보통주 주당 현금배당금은 삼성전자 746원, 현대자동차 5,000원, SK하이닉스 750원입니다. 금액은 SK하이닉스가 가장 크고, 삼성전자가 가장 작습니다 [1][2][3].\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 제58기 반기 보통주 주당 현금배당금은 746원입니다 [1].\n- SK하이닉스 제79기 반기 보통주 주당 현금배당금은 750원입니다 [2].\n- 현대자동차 제59기 상반기 보통주 주당 현금배당금은 5,000원입니다 [3].\n\n**해석**\n- 현대자동차의 반기 누적 주당 배당금은 SK하이닉스보다 4,250원, 삼성전자보다 4,254원 많습니다 [1][2][3].\n\n⚠ 근거 1건이 원문과 대조 검증되지 않았습니다. 출처를 직접 확인하세요.",
+    "conclusion_ok": false
+   },
+   {
+    "q": "SK하이닉스와 현대차 2026년 반기 부채총계 비교",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000695,
+    "sec": 5.12,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기 연결 기준 부채총계는 현대자동차가 259,095,722백만원으로 SK하이닉스의 86,168,986백만원보다 172,926,736백만원 많습니다. 두 회사 모두 제79기/제59기 반기 재무상태표 기준이며, 단위는 백만원입니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- SK하이닉스 제79기 반기 요약연결재무정보의 부채총계는 86,168,986백만원입니다.[1]\n- 현대자동차 제59기 반기 연결재무제표 기준 부채총계는 259,095,722백만원입니다.[2]\n\n**해석**\n- 현대자동차의 연결 기준 반기 부채총계가 SK하이닉스보다 172,926,736백만원 더 많습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "삼성전자와 현대자동차 2026년 반기 연구개발비 비교해줘",
+    "type": "compare",
+    "mode": "auto",
+    "status": "needs_clarification",
+    "correct": false,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": false
+     },
+     "conclusion_ok": false,
+     "correct": false
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000642,
+    "sec": 7.34,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 상반기 연결 기준 연구개발비용은 삼성전자 27,362,722(표 단위 미표시), 현대자동차 2,388,938백만원입니다. 삼성전자 표의 단위가 표시되지 않아 두 회사의 금액을 동일 단위로 정확히 환산·비교할 수는 없습니다. [1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 제58기 반기 연구개발비용 총계는 27,362,722이며, 공시에는 표의 단위가 표시되어 있지 않습니다. 해당 표는 연결 누계기준입니다. [1]\n- 삼성전자 제58기 반기 연구개발비용 계는 정부보조금 △716을 차감한 27,362,006이며, 공시 본문은 이를 27조 3,620억원이라고 기재합니다. [1]\n- 현대자동차 2026년 상반기(제59기) 연구개발비용 계는 2,388,938백만원이며, 연결재무제표 기준입니다. [2]\n\n**해석**\n- 삼성전자 공시 본문 금액과 현대자동차 표 금액은 표기 단위가 달라 직접적인 배수 비교에는 삼성전자 표의 단위 확인이 필요합니다.",
+    "conclusion_ok": false
+   },
+   {
+    "q": "SK하이닉스 2025년 반기와 2026년 반기 매출 비교",
+    "type": "trend",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 4,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000743,
+    "sec": 6.1,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 반기 누적 매출액은 2025년 제78기 반기 39,871,093백만원에서 2026년 제79기 반기 131,895,033백만원으로 92,023,940백만원 증가했습니다. 이는 약 230.8% 증가한 수치입니다. [1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 2025년 제78기 반기 연결 매출액은 39,871,093백만원입니다. [1]\n- 2026년 제79기 반기 연결 매출액은 131,895,033백만원입니다. [2]\n- 두 수치는 각각 2025년 6월 30일 및 2026년 6월 30일까지의 누계 기준입니다. [1][2]\n\n**해석**\n- 공시된 연결 반기 누적 기준으로 2026년 매출액은 전년 동기 대비 92,023,940백만원, 약 230.8% 증가했습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "삼성전자 2023년, 2024년, 2025년 반기 영업이익 추이",
+    "type": "trend",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.001012,
+    "sec": 7.43,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 반기 영업이익은 2023년 1~6월 1,308,725백만원에서 2024년 1~6월 17,049,887백만원으로 증가했고, 2025년 1~6월에는 11,361,329백만원으로 감소했습니다. 따라서 2024년에 크게 늘어난 뒤 2025년 반기에 낮아진 추이입니다.[1][2][3]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제55기 반기(2023년 1월~6월) 영업이익은 1,308,725백만원입니다.[1]\n- 연결 기준 제56기 반기(2024년 1월~6월) 영업이익은 17,049,887백만원입니다.[2]\n- 연결 기준 제57기 반기(2025년 1월~6월) 영업이익은 11,361,329백만원입니다.[3]\n\n**해석**\n- 2024년 반기 영업이익은 2023년 반기보다 증가했으며, 2025년 반기에는 2024년 반기보다 감소했습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "현대차 2025년 1분기와 2026년 1분기 영업이익 비교",
+    "type": "trend",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000684,
+    "sec": 6.27,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 영업이익은 2025년 1분기 3,633,609백만원에서 2026년 1분기 2,514,686백만원으로 1,118,923백만원 감소했습니다([1], [2]).\n\n**주요 내용 (공시 확인 사항)**\n- 2025년 1분기(제58기 1분기) 연결 영업이익은 3,633,609백만원입니다[1].\n- 2026년 1분기(제59기 1분기) 연결 영업이익은 2,514,686백만원입니다[2].\n\n**해석**\n- 2026년 1분기 영업이익은 전년 동기보다 1,118,923백만원(약 30.8%) 낮습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "삼성전자 2022년과 2023년 연간 매출액 비교",
+    "type": "trend",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000433,
+    "sec": 4.54,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 연간 매출액은 2022년 302,231,360백만원에서 2023년 258,935,494백만원으로 43,295,866백만원 감소했습니다(약 14.3% 감소).\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 2022년(제54기, 1~12월) 매출액은 302,231,360백만원입니다.[1]\n- 연결 기준 2023년(제55기, 1~12월) 매출액은 258,935,494백만원입니다.[1]\n\n**해석**\n- 2023년 매출액은 2022년보다 43,295,866백만원 적으며, 2022년 매출액 대비 약 14.3% 감소했습니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "SK하이닉스 2025년 1분기와 2026년 1분기 영업이익 비교",
+    "type": "trend",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000759,
+    "sec": 5.78,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 영업이익은 2025년 1분기 7,440,504백만원에서 2026년 1분기 37,610,283백만원으로 30,169,779백만원 증가했습니다. 2026년 1분기 영업이익은 2025년 1분기의 약 5.05배입니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 2025년 1분기 연결 영업이익은 7,440,504백만원이며, 2025년 3월 31일까지의 누계 기준입니다.[1]\n- 2026년 1분기 연결 영업이익은 37,610,283백만원이며, 2026년 3월 31일까지의 누계 기준입니다.[2]\n- 각 분기보고서의 요약 연결재무정보 단위는 백만원입니다.[1][2]\n\n**해석**\n- 2026년 1분기 연결 영업이익은 전년 동기보다 30,169,779백만원 늘어 약 5.05배 수준입니다.",
+    "conclusion_ok": true
+   },
+   {
+    "q": "삼성전자 2023년 실적이 왜 나빠졌어?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.001044,
+    "sec": 7.91,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자 연결 기준 2023년 실적 악화의 핵심은 DS 부문의 급격한 부진입니다. 제55기 매출은 전년보다 14.3%, 영업이익은 84.9% 줄었고, DS 부문은 영업손실로 전환했습니다. [1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제55기(2023년) 매출액은 258,935,494백만원으로 제54기 302,231,360백만원보다 43,295,866백만원(14.3%) 감소했습니다. [1]\n- 연결 기준 제55기 영업이익은 6,566,976백만원으로 제54기 43,376,630백만원보다 36,809,654백만원(84.9%) 감소했습니다. [1]\n- 연결 기준 DS 부문 매출은 제55기 66,594,471백만원으로 전년보다 31,860,799백만원(32.4%) 감소했고, 영업이익은 제54기 23,815,810백만원에서 제55기 △14,879,458백만원으로 바뀌었습니다. [2]\n- 같은 기간 DX 부문 영업이익은 12,746,074백만원에서 14,384,705백만원으로 늘었고, SDC 영업이익은 5,952,973백만원에서 5,566,478백만원으로 감소했으며, Harman은 880,548백만원에서 1,173,702백만원으로 늘었습니다. [2",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대차 2026년 반기 환율 변동이 실적에 미치는 영향은?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": "단일 답변이 근거를 인용하지 못함",
+    "rounds": 4,
+    "usd": 0.001418,
+    "sec": 22.01,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대차 2026년 반기 연결 공시에 따르면, 환율이 5% 변동할 경우 당반기말 외화환위험의 법인세비용차감전순이익 민감도는 USD와 EUR에서 각각 ±95,462백만원, ±63,042백만원이며 JPY는 환율 상승 시 2,696백만원 감소, 하락 시 2,696백만원 증가입니다[1]. 이는 민감도 분석상 영향이며, 환율 변동이 실제 반기 실적에 미친 전체 금액은 확인한 근거만으로 특정할 수 없습니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 당반기말에 환율이 5% 변동할 경우 USD 환율 상승은 당기손익 95,462백만원 증가, 하락은 95,462백만원 감소로 분석됐습니다[1].\n- 같은 조건에서 EUR 환율 상승은 당기손익 63,042백만원 증가, 하락은 63,042백만원 감소로 분석됐고, JPY 환율 상승은 2,696백만원 감소, 하락은 2,696백만원 증가로 분석됐습니다[1].\n- 연결실체는 외화 자산·부채 및 예상 수출거래의 환율 위험을 줄이기 위해 통화선도·통화옵션·통화스왑 등 파생금융상품을 이용한다고 공시했습니다[2].\n- 연결 현금흐름표상 제59기 반기 현금및현금성자산에 대한 환율변동효과는 475,099백만원입니다[3].\n\n**해석**\n-",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 HBM 관련 내용 알려줘",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": false,
+    "n_evidence": 4,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00085,
+    "sec": 9.13,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스 반기보고서(2026년 6월)는 HBM을 AI·딥러닝 워크로드를 가속하는 메모리로 설명하며, HBM 시장의 성장과 자사의 제품·협력 전략을 제시합니다. 다만 이 발췌 근거에는 HBM 관련 매출액이나 생산량 등 회사별 실적 수치는 없습니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 보고서는 AI 서버·데이터센터 수요 확대와 HBM·DDR5 등 고부가 제품 수요 증가를 2026년 메모리 시장의 성장 요인으로 전망합니다.[1]\n- 가트너 자료를 인용해 DRAM 시장이 2024년 $916억(+82.7%), 2025년 $1,469억(+60.0%)을 기록했고, 2026년에도 HBM·DDR5 중심의 고부가 제품 수요 증가로 성장세를 이어갈 것으로 전망합니다.[2]\n- 보고서는 HBM이 AI와 딥러닝 워크로드 증가에 따라 워크스테이션 및 고성능 컴퓨팅 시스템 가속화에 탑재된다고 설명합니다.[3]\n- 회사는 HBM 제품의 적기 출시(Time to Market), 대역폭 및 Density/Core Die 적층 단수 상향, 성능·품질 개선을 추진하고 ASIC 개발 협력을 강화한다고 밝혔습니다.[3]\n\n**해석**\n- 공시 내용상 SK하이닉스는 HBM을 A",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대자동차 전기차 전략은 어떻게 돼?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 5,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.001197,
+    "sec": 8.6,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대자동차는 내연기관 중심에서 전동화 중심으로 사업구조를 전환하고, 하이브리드·플러그인 하이브리드와 전기차·수소전기차를 함께 확대하는 전략입니다.[1] 전기차 측면에서는 폭넓은 차종 전동화와 충전·에너지 관리, 배터리 상태 예측 등 사용성과 효율을 높이는 기술 개발을 병행하고 있습니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 회사는 기존 내연기관 중심 사업구조를 전동화 차량 중심으로 전환 중이라고 밝혔습니다.[1]\n- 하이브리드·플러그인 하이브리드뿐 아니라 전기차와 수소전기차를 지속 출시하고 있으며, 코나·인스터(캐스퍼)·아이오닉 5·6·9 및 제네시스 GV60·GV70 전동화 모델을 제시했습니다.[1]\n- 2026년 상반기 연구개발실적에는 EV의 3년·5년 SOH 예측을 통한 사용성 향상, 주행부하 기반 도착 예상 SOC 및 최적 충전소 경유 안내 기술이 기재돼 있습니다.[2]\n- 보고서에는 전기차의 회생제동 활용을 위한 고전압 배터리 제어 로직 개발도 기재돼 있습니다.[2]\n\n**해석**\n- 공시 내용상 전략은 전기차만으로 전환하기보다 하이브리드와 수소전기차를 포함한 다중 전동화 포트폴리오를 운영하면서 전기차 충전·주행 에너지 관리와 배터리",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2026년 반기 기준 진행 중인 소송이나 우발부채 있어?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000674,
+    "sec": 5.99,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "네. 삼성전자는 2026년 반기 기준 다수의 소송·분쟁 및 규제기관 조사를 진행 중이며, 계열회사 채무보증도 공시했습니다. 다만 회사는 소송 등의 결과가 재무상태에 중요한 영향을 미치지 않을 것으로 판단한다고 밝혔습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 회사는 정상적인 영업과정에서 발생한 다수의 소송, 분쟁 및 규제기관 조사를 진행 중이라고 공시했습니다.[1]\n- 관련 자원의 유출금액 및 시기는 불확실하며, 경영진은 소송 등의 결과가 재무상태에 중요한 영향을 미치지 않을 것으로 판단한다고 기재했습니다.[1]\n- 채무보증 표의 단위는 천US$, %이며, 연결 기준 합계의 기말 채무보증한도는 15,174,958천US$, 기말 채무금액은 600,032천US$입니다.[1]\n\n**해석**\n- 공시 내용상 진행 중인 소송·분쟁·조사는 존재하지만, 개별 사건의 상대방·청구액·진행 단계는 제공된 근거에 나타나 있지 않습니다.\n- 공시된 계열회사 채무보증은 우발부채 관련 위험으로 볼 수 있으나, 제시된 표의 기말 채무금액은 채무보증한도와 구분되는 금액입니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 원재료 가격은 어떤 요인에 영향을 받아?",
+    "type": "cause",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [
+      true
+     ],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "vector",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.001099,
+    "sec": 7.76,
+    "llm": "auto:vector:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 원재료 가격은 품목별로 주로 세계 반도체 업계의 수급, PCB의 경우 최종 반도체 제품 수급과 주요 원자재 거래가격의 영향을 받습니다. Substrate는 제품별 맞춤 설계와 패키지의 경박·단소화에 따른 제작 난이도 상승도 관련 요인으로 공시돼 있습니다. [1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 웨이퍼 가격은 세계 반도체 업계의 수급 동향에 영향을 받습니다. [1]\n- Substrate 가격은 세계 반도체 업계의 수급 동향에 영향을 받으며, 반도체의 Type·Density에 따른 개별 설계 품목입니다. 패키지 경박·단소화에 따라 제작 난이도가 상승하는 추세라고 공시했습니다. [1]\n- PCB 가격은 최종 반도체 제품의 수급 및 주요 원자재 거래가격의 영향을 받습니다. 공시는 경기 불확실성에 따른 원소재 가격 변동성과 신제품의 고신뢰성·고속도·고용량 요구에 따른 조달 비용 변동성도 언급합니다. [2]\n\n**해석**\n- 원재료 가격에 영향을 주는 요인은 품목마다 다르며, 공시에서 직접 언급한 주요 축은 시장 수급과 원자재 가격이고 Substrate·PCB는 제품 사양 및 기술 요구도 조달 여건에 연관됩니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "LG전자 매출 알려줘",
+    "type": "negative",
+    "mode": "auto",
+    "status": "needs_clarification",
+    "correct": true,
+    "score": {
+     "correct": true,
+     "conclusion_ok": null
+    },
+    "section_hit": null,
+    "n_evidence": 0,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 2,
+    "usd": 7.7e-05,
+    "sec": 4.41,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "LG전자는 조회 가능한 보유 기업 목록에 없어 매출을 확인하지 못했습니다. 어느 기업의 매출을 원하시는지 알려주세요.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "현대자동차 2023년 매출은?",
+    "type": "negative",
+    "mode": "auto",
+    "status": "no_evidence",
+    "correct": true,
+    "score": {
+     "correct": true,
+     "conclusion_ok": null
+    },
+    "section_hit": null,
+    "n_evidence": 0,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.000423,
+    "sec": 13.35,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대자동차의 2023년 매출은 현재까지 조회한 공시 근거로 확인하지 못했습니다.\n\n**주요 내용 (공시 확인 사항)**\n- 현대자동차의 2023년 사업보고서를 조회했으나 결과가 없었습니다.\n- 2024년 사업보고서 조회와 2023.12 기간의 매출 검색에서도 결과가 없었습니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자 2027년 반기 영업이익은?",
+    "type": "negative",
+    "mode": "auto",
+    "status": "no_evidence",
+    "correct": true,
+    "score": {
+     "correct": true,
+     "conclusion_ok": null
+    },
+    "section_hit": null,
+    "n_evidence": 0,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 3,
+    "usd": 0.000117,
+    "sec": 6.29,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자의 2027년 반기보고서는 확인되지 않아 2027년 반기 영업이익을 공시 자료로 확인할 수 없습니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "SK하이닉스 2024년 사업보고서 기준 배당금은?",
+    "type": "negative",
+    "mode": "auto",
+    "status": "no_evidence",
+    "correct": true,
+    "score": {
+     "correct": true,
+     "conclusion_ok": null
+    },
+    "section_hit": null,
+    "n_evidence": 0,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 3,
+    "usd": 0.000116,
+    "sec": 8.36,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 2024년 사업보고서를 확인할 수 없어, 해당 보고서 기준 배당금을 확인하지 못했습니다.",
+    "conclusion_ok": null
+   },
+   {
+    "q": "카카오 최대주주는 누구야?",
+    "type": "negative",
+    "mode": "auto",
+    "status": "needs_clarification",
+    "correct": true,
+    "score": {
+     "correct": true,
+     "conclusion_ok": null
+    },
+    "section_hit": null,
+    "n_evidence": 0,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 2,
+    "usd": 7.6e-05,
+    "sec": 3.95,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "보유 기업 목록에서 카카오를 확인할 수 없어 최대주주를 확인하지 못했습니다. [회사 확인 결과]",
+    "conclusion_ok": null
+   },
+   {
+    "q": "삼성전자, SK하이닉스, 현대자동차 중 2026년 반기 영업이익이 가장 큰 회사는?",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.001157,
+    "sec": 26.74,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기 연결 영업이익이 가장 큰 회사는 삼성전자입니다. 삼성전자는 146,725,209백만원으로 SK하이닉스와 현대자동차보다 큽니다. [1][2][3]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 제58기 반기(2026년 1~6월) 영업이익은 146,725,209백만원입니다. [1]\n- SK하이닉스 제79기 반기 영업이익은 98,152,891백만원입니다. [2]\n- 현대자동차 제59기 반기 영업이익은 5,365,574백만원입니다. [3]\n\n**해석**\n- 세 회사의 2026년 반기 공시상 영업이익을 비교하면 삼성전자가 가장 큽니다. [1][2][3]"
+   },
+   {
+    "q": "세 회사 중 2026년 반기 부채총계가 가장 작은 곳은? 삼성전자, SK하이닉스, 현대차 기준으로",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_min": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.00102,
+    "sec": 23.64,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "세 회사 중 2026년 반기 연결 부채총계가 가장 작은 곳은 SK하이닉스입니다. [1][2][3]\n\n**주요 내용 (공시 확인 사항)**\n- 2026년 반기 연결 부채총계는 SK하이닉스 86,168,986백만원, 삼성전자 180,170,840백만원, 현대자동차 259,095,722백만원입니다. [1][2][3]\n\n**해석**\n- 세 회사의 반기 연결 부채총계를 비교하면 SK하이닉스가 가장 작습니다. [1][2][3]"
+   },
+   {
+    "q": "삼성전자와 SK하이닉스 중 2026년 반기 매출이 더 큰 곳은?",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000662,
+    "sec": 4.61,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기 연결 매출은 삼성전자가 더 큽니다. 삼성전자는 305,372,914백만원, SK하이닉스는 131,895,033백만원입니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 요약연결재무정보의 매출액은 2026년 1월~6월 305,372,914백만원입니다.[1]\n- SK하이닉스 요약연결재무정보의 제79기 반기 매출액은 131,895,033백만원이며, 반기 누계 기준입니다.[2]\n\n**해석**\n- 두 회사의 공시된 연결 기준 반기 매출을 비교하면 삼성전자의 매출이 더 큽니다."
+   },
+   {
+    "q": "삼성전자, SK하이닉스, 현대자동차 중 2026년 반기 기준 직원 수가 가장 많은 회사는?",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 4,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.001237,
+    "sec": 15.01,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기보고서 기준 직원 수가 가장 많은 회사는 삼성전자입니다. 삼성전자 직원 수는 129,200명으로, 현대자동차 71,793명과 SK하이닉스 36,150명보다 많습니다. [1][2][3]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자 반기보고서의 직원 현황 합계는 129,200명입니다. [1]\n- SK하이닉스 반기보고서의 직원 현황 합계는 36,150명입니다. [2]\n- 현대자동차 반기보고서의 직원 현황 합계는 71,793명입니다. [3]\n\n**해석**\n- 공시된 직원 현황 합계를 비교하면 삼성전자가 세 회사 중 가장 많습니다. 다만 삼성전자 공시는 본사(별도) 기준이라고 명시되어 있어, 회사 간 집계 범위가 완전히 동일한 비교라고 단정하기는 어렵습니다. [1][2][3]"
+   },
+   {
+    "q": "삼성전자, SK하이닉스, 현대자동차의 2026년 반기 연결 현금배당성향을 비교해줘",
+    "type": "compare",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_max": true,
+      "expect_min": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 1,
+    "format_ok": true,
+    "route": "agent",
+    "escalated": null,
+    "rounds": 4,
+    "usd": 0.001137,
+    "sec": 12.64,
+    "llm": "agent:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "2026년 반기보고서상 연결 현금배당성향은 현대자동차 27.0%, 삼성전자 4.1%, SK하이닉스 0.4% 순입니다. 이는 각사의 제59기 상반기 또는 제58기 반기 누적 기준 공시 수치입니다. [1][2][3]\n\n**주요 내용 (공시 확인 사항)**\n- 삼성전자: 제58기 반기 연결 현금배당성향 4.1%, 현금배당금총액 4,909,211백만원입니다. [1]\n- SK하이닉스: 제79기 반기 연결 현금배당성향 0.4%, 현금배당금총액 539,977백만원입니다. [2]\n- 현대자동차: 제59기 상반기 연결 현금배당성향 27.0%, 현금배당금총액 1,309,170백만원입니다. [3]\n\n**해석**\n- 세 회사 중 반기 누적 연결 현금배당성향은 현대자동차가 가장 높고, SK하이닉스가 가장 낮습니다. [1][2][3]\n\n⚠ 근거 1건이 원문과 대조 검증되지 않았습니다. 출처를 직접 확인하세요."
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 영업이익률은?",
+    "type": "calc",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [],
+     "conclusion": {
+      "expect_calc": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 3,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000518,
+    "sec": 5.76,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스의 2026년 제79기 반기 연결 영업이익률은 약 74.4%입니다(영업이익 98,152,891백만원 ÷ 매출액 131,895,033백만원). 별도 기준은 약 75.3%입니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제79기 반기 누계 매출액은 131,895,033백만원, 영업이익은 98,152,891백만원입니다.\n- 별도 기준 제79기 반기 누계 매출액은 122,084,310백만원, 영업이익은 91,903,526백만원입니다.\n\n**해석**\n- 영업이익률은 영업이익을 매출액으로 나누어 계산했습니다. 연결과 별도 중 기준이 지정되지 않아 통상적인 연결 기준을 먼저 제시하고 별도 기준도 함께 적었습니다."
+   },
+   {
+    "q": "삼성전자 2026년 반기 부채비율은?",
+    "type": "calc",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [],
+     "conclusion": {
+      "expect_calc": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000403,
+    "sec": 4.9,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "공시의 연결재무정보 기준 2026년 반기(제58기, 2026년 6월 말) 부채비율은 약 31.1%입니다. 부채비율은 부채총계를 자본총계로 나누어 계산했습니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 제58기 2026년 6월 말 연결 부채총계는 180,170,840백만원이고 자본총계는 579,309,676백만원입니다.[1]\n\n**해석**\n- 공시 표에 부채비율이 직접 제시되지는 않아, 연결 부채총계를 연결 자본총계로 나눠 계산한 값입니다."
+   },
+   {
+    "q": "현대차 2026년 반기 매출은 전년 반기보다 몇 % 늘었어?",
+    "type": "calc",
+    "mode": "auto",
+    "status": "answered",
+    "correct": false,
+    "score": {
+     "values": [],
+     "keywords": [],
+     "conclusion": {
+      "expect_calc": false
+     },
+     "conclusion_ok": false,
+     "correct": false
+    },
+    "conclusion_ok": false,
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000455,
+    "sec": 4.59,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 2026년 반기 매출은 전년 반기보다 약 8.1% 감소했습니다. 공시에는 제59기 반기 매출은 있지만 비교 대상인 제58기 반기 매출은 제시되어 있지 않아 전년 동기 대비 증감률을 직접 계산할 수 없습니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제59기 반기 매출액은 95,154,214백만원입니다.[1]\n- 표의 비교 열은 제58기(연간)이며 매출액은 186,254,472백만원입니다.[1]\n\n**해석**\n- 제58기 연간 매출액은 전년 반기 매출액이 아니므로, 이를 기준으로 산출한 감소율 약 48.9%는 전년 반기 대비 증감률로 볼 수 없습니다. 제58기 반기 매출액이 있어야 질문의 증감률을 계산할 수 있습니다."
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 매출은 전년 반기의 몇 배야?",
+    "type": "calc",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [],
+     "conclusion": {
+      "expect_calc": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000705,
+    "sec": 5.34,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준으로 SK하이닉스의 2026년 반기 매출은 전년 반기 대비 약 3.31배입니다. 계산은 제79기 반기 매출 131,895,033백만원을 제78기 반기 매출 39,871,093백만원으로 나눈 값입니다.[1][2]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제79기 반기(2026년) 매출액은 131,895,033백만원입니다.[1]\n- 연결 기준 제78기 반기(2025년) 매출액은 39,871,093백만원입니다.[2]\n- 두 반기 매출액은 각각 해당 반기 6월 30일까지의 누계 기준입니다.[1][2]\n\n**해석**\n- 2026년 반기 매출액은 전년 반기 매출액의 약 3.31배입니다."
+   },
+   {
+    "q": "삼성전자 2025년 3분기 누적 영업이익률은?",
+    "type": "calc",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [],
+     "keywords": [],
+     "conclusion": {
+      "expect_calc": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00043,
+    "sec": 3.98,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "삼성전자 2025년 3분기 누적 연결 영업이익률은 약 9.82%입니다. 영업이익률은 2025년 1~9월 연결 영업이익을 연결 매출액으로 나누어 계산했습니다. [1]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 2025년 1월~9월 매출액은 239,768,567백만원입니다. [1]\n- 연결 기준 2025년 1월~9월 영업이익은 23,527,391백만원입니다. [1]\n\n**해석**\n- 23,527,391 ÷ 239,768,567 × 100으로 계산한 영업이익률은 약 9.82%입니다."
+   },
+   {
+    "q": "하이닉스 작년 반기 영업이익은?",
+    "type": "relative",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000439,
+    "sec": 3.99,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "작년 반기(2025년 제78기 반기) SK하이닉스의 연결 영업이익은 16,653,355백만원입니다. 별도 기준은 15,212,380백만원입니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제78기 반기 영업이익은 16,653,355백만원이며, 2025년 6월 30일까지의 누계입니다. [1]\n- 별도 기준 제78기 반기 영업이익은 15,212,380백만원이며, 2025년 6월 30일까지의 누계입니다. [1]"
+   },
+   {
+    "q": "현대차 올해 1분기 영업이익은?",
+    "type": "relative",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 1,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.00038,
+    "sec": 3.92,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "현대차의 올해 1분기 연결 영업이익은 2,514,686백만원입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 연결재무제표 기준 제59기 1분기 영업이익은 2,514,686백만원입니다."
+   },
+   {
+    "q": "현대차 영업이익이 작년 반기보다 올해 반기에 늘었어 줄었어?",
+    "type": "relative",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000639,
+    "sec": 4.15,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "늘지 않고 줄었습니다. 연결 기준 올해 제59기 반기 영업이익은 작년 제58기 반기보다 감소했습니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준·제59기 반기 영업이익은 5,365,574백만원입니다.[1]\n- 연결 기준·제58기 반기 영업이익은 7,235,206백만원입니다.[2]\n\n**해석**\n- 두 반기 영업이익을 비교하면 1,869,632백만원 감소했습니다."
+   },
+   {
+    "q": "SK하이닉스 2026년 반기 매출, 영업이익, 순이익 한 번에 알려줘",
+    "type": "fact",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {},
+     "conclusion_ok": null,
+     "correct": true
+    },
+    "conclusion_ok": null,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000437,
+    "sec": 3.91,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "SK하이닉스 2026년 제79기 반기 연결 기준 누적 매출액은 131,895,033백만원, 영업이익은 98,152,891백만원, 연결총당기순이익은 134,268,502백만원입니다.[1]\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제79기 반기 매출액은 131,895,033백만원입니다.[1]\n- 연결 기준 제79기 반기 영업이익은 98,152,891백만원입니다.[1]\n- 연결 기준 제79기 반기 연결총당기순이익은 134,268,502백만원입니다.[1]\n- 손익계산서 해당 수치는 2026년 6월 30일까지의 누계 기준입니다.[1]"
+   },
+   {
+    "q": "삼성전자 2026년 반기 영업이익은 2025년 반기보다 얼마나 늘었어?",
+    "type": "calc",
+    "mode": "auto",
+    "status": "answered",
+    "correct": true,
+    "score": {
+     "values": [
+      true,
+      true
+     ],
+     "keywords": [],
+     "conclusion": {
+      "expect_direction": true
+     },
+     "conclusion_ok": true,
+     "correct": true
+    },
+    "conclusion_ok": true,
+    "section_hit": true,
+    "n_evidence": 2,
+    "n_unverified": 0,
+    "format_ok": true,
+    "route": "wiki",
+    "escalated": null,
+    "rounds": null,
+    "usd": 0.000666,
+    "sec": 4.74,
+    "llm": "auto:wiki:gpt-6-luna",
+    "router": "gemini",
+    "router_fallback": false,
+    "answer": "연결 기준 2026년 반기 영업이익은 2025년 반기보다 135,363,880백만원 증가했습니다. 이는 약 135조 3,638억 8,000만원 늘어난 금액입니다.\n\n**주요 내용 (공시 확인 사항)**\n- 연결 기준 제58기 2026년 1월~6월 영업이익은 146,725,209백만원입니다. [1]\n- 연결 기준 제57기 2025년 1월~6월 영업이익은 11,361,329백만원입니다. [2]\n- 두 기간의 영업이익 차이는 135,363,880백만원입니다.\n\n**해석**\n- 2026년 반기 영업이익은 2025년 반기보다 크게 증가했습니다."
+   }
+  ]
+ }
+}

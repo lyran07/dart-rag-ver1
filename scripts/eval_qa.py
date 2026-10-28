@@ -33,7 +33,7 @@ import yaml  # noqa: E402
 
 TYPES = ["fact", "synonym", "concept", "compare", "trend", "calc", "relative", "cause", "negative"]
 CORP_NAMES = {"삼성전자": ["삼성전자", "삼성"], "SK하이닉스": ["SK하이닉스", "하이닉스"], "현대자동차": ["현대자동차", "현대차"]}
-BIG = r"(크|큰|커|컸|많|높|앞)"                     # '크다'는 활용하면 글자가 바뀐다 (큰·커·컸)
+BIG = r"(크|큰|큽|클|커|컸|많|높|앞)"                # "크다"는 활용하면 글자가 바뀐다 (큰·큽·클·커·컸)
 MAX_CUE = r"(가장|제일)\s*" + BIG + r"|최대|최고|1위"
 MIN_CUE = r"(가장|제일)\s*(작|적|낮)|최소|최저"
 PAIR_MAX = r"더\s*" + BIG

@@ -27,7 +27,12 @@ copy .env.example .env      # .env 를 열어 키 3개 입력 (아래 표)
 
 ### 데이터 준비
 
-`data/` 폴더는 저장소에 없습니다. 팀 드라이브의 `data.zip` 을 프로젝트 폴더에 풀면 바로 질문할 수 있습니다.
+`data/` 폴더(공시 원문·인덱스·위키·보고서, 압축 약 205MB)는 용량 때문에 코드와 따로 둡니다.
+GitHub 저장소 오른쪽 **Releases** 에서 `data.zip` 을 받아 프로젝트 폴더에 풀면(`data/` 폴더가 생김) 바로 질문할 수 있습니다.
+
+```powershell
+Expand-Archive data.zip -DestinationPath .     # 프로젝트 폴더에서
+```
 직접 만들려면 아래 3번(데이터 수집)을 실행하세요. 임베딩에 OpenAI API 비용이 듭니다.
 
 ### 실행

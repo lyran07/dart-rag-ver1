@@ -59,7 +59,7 @@ OPENAI_API_KEY=sk-...
 
 공시 원문·인덱스·위키·미리 만든 보고서가 담긴 `data/` 폴더(압축 약 205MB)는 용량 때문에 코드와 따로 배포합니다.
 
-1. [Releases (data-v1)](https://github.com/tankingproducer/dart-rag-ver1/releases/tag/data-v1) 에서 `data.zip` 을 내려받아 프로젝트 폴더에 둡니다.
+1. [Releases (data-v1)](https://github.com/lyran07/dart-rag-ver1/releases/tag/data-v1) 에서 `data.zip` 을 내려받아 프로젝트 폴더에 둡니다.
 2. 프로젝트 폴더에서 압축을 풉니다.
 
 ```powershell
